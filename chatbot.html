@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBot — Agricultural AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #F8F7F4;
+            --bg-deep: #F0EDE6;
+            --bg-chat: #F8F7F4;
+            --bg-card: #FFFFFF;
+            --bg-user: #2D6A4F;
+            --bg-sidebar: #F2F0EA;
+            --bg-input: #FFFFFF;
+            --bg-hover: rgba(45,106,79,0.06);
+            --bg-copy: rgba(0,0,0,0.04);
+            --text-1: #1B1B18;
+            --text-2: #7A7A72;
+            --text-3: #ABABA4;
+            --text-inv: #FFFFFF;
+            --accent: #2D6A4F;
+            --accent-mid: #40916C;
+            --accent-soft: #D8F3DC;
+            --accent-hover: #1B4332;
+            --border: #E6E2D9;
+            --border-light: #EFECE5;
+            --shadow-sm: 0 1px 2px rgba(27,27,24,0.04);
+            --shadow-md: 0 2px 8px rgba(27,27,24,0.06);
+            --shadow-lg: 0 8px 32px rgba(27,27,24,0.08);
+            --dot-color: rgba(27,27,24,0.04);
+            --toast-bg: #1B1B18;
+            --toast-fg: #F8F7F4;
+            --typing: #2D6A4F;
+            --scrollbar: #D5D1C8;
+            --sug-border: #E2DFD7;
+        }
+
+        [data-theme="dark"] {
+            --bg: #101210;
+            --bg-deep: #181B19;
+            --bg-chat: #101210;
+            --bg-card: #1C1F1D;
+            --bg-user: #2D6A4F;
+            --bg-sidebar: #141614;
+            --bg-input: #1C1F1D;
+            --bg-hover: rgba(82,183,136,0.08);
+            --bg-copy: rgba(255,255,255,0.06);
+            --text-1: #E8E6E0;
+            --text-2: #8A8A82;
+            --text-3: #55554F;
+            --text-inv: #FFFFFF;
+            --accent: #52B788;
+            --accent-mid: #74C69D;
+            --accent-soft: rgba(82,183,136,0.12);
+            --accent-hover: #95D5B2;
+            --border: #262926;
+            --border-light: #1E211E;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 2px 8px rgba(0,0,0,0.25);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.3);
+            --dot-color: rgba(255,255,255,0.02);
+            --toast-bg: #E8E6E0;
+            --toast-fg: #101210;
+            --typing: #52B788;
+            --scrollbar: #2A2D2A;
+            --sug-border: #2A2D2A;
+        }
+
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        body{
+            font-family:'DM Sans',sans-serif;
+            background:var(--bg);
+            color:var(--text-1);
+            height:100vh;
+            overflow:hidden;
+        }
+
+        .app{display:flex;height:100vh;}
+
+        /* ========== SIDEBAR ========== */
+        .sidebar{
+            width:272px;
+            background:var(--bg-sidebar);
+            border-right:1px solid var(--border);
+            display:flex;
+            flex-direction:column;
+            flex-shrink:0;
+            transition:background .4s,border-color .4s;
+        }
+
+        .sb-head{
+            padding:22px 18px 18px;
+            border-bottom:1px solid var(--border);
+            transition:border-color .4s;
+        }
+
+        .logo{display:flex;align-items:center;gap:11px;}
+
+        .logo-mark{
+            width:38px;height:38px;
+            background:linear-gradient(135deg,#2D6A4F,#52B788);
+            border-radius:11px;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-size:16px;
+            box-shadow:0 2px 10px rgba(45,106,79,0.25);
+        }
+
+        .logo-type{font-family:'Playfair Display',serif;font-weight:800;font-size:21px;color:var(--text-1);transition:color .4s;}
+        .logo-sub{font-size:10.5px;color:var(--text-3);letter-spacing:1.8px;text-transform:uppercase;font-weight:500;transition:color .4s;}
+
+        .new-btn{
+            margin:14px 14px 10px;
+            padding:11px 14px;
+            background:var(--accent);
+            color:#fff;border:none;border-radius:10px;
+            font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;
+            cursor:pointer;display:flex;align-items:center;gap:9px;
+            transition:all .25s;
+        }
+        .new-btn:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,106,79,0.25);}
+        .new-btn:active{transform:translateY(0);}
+
+        .history{flex:1;overflow-y:auto;padding:6px 10px;}
+        .history::-webkit-scrollbar{width:4px;}
+        .history::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px;}
+
+        .hist-label{font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:1.4px;padding:10px 8px 8px;font-weight:600;transition:color .4s;}
+
+        .hist-item{
+            padding:9px 10px;border-radius:8px;cursor:pointer;
+            font-size:12.5px;color:var(--text-2);
+            transition:all .2s;margin-bottom:1px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            display:flex;align-items:center;gap:9px;
+        }
+        .hist-item:hover{background:var(--bg-hover);color:var(--text-1);}
+        .hist-item.active{background:var(--bg-hover);color:var(--accent);font-weight:500;}
+        .hist-item i{font-size:11px;opacity:.5;flex-shrink:0;}
+
+        .sb-foot{padding:14px 18px;border-top:1px solid var(--border);transition:border-color .4s;}
+
+        .theme-row{display:flex;align-items:center;justify-content:space-between;}
+        .theme-label{font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:8px;transition:color .4s;}
+        .theme-label i{width:16px;text-align:center;}
+
+        .toggle{
+            width:42px;height:23px;
+            background:var(--border);border-radius:12px;
+            position:relative;cursor:pointer;border:none;outline:none;
+            transition:background .3s;
+        }
+        .toggle::after{
+            content:'';position:absolute;width:17px;height:17px;
+            background:#fff;border-radius:50%;top:3px;left:3px;
+            transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,0.18);
+        }
+        .toggle.on{background:var(--accent);}
+        .toggle.on::after{transform:translateX(19px);}
+
+        /* ========== MAIN ========== */
+        .main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;}
+
+        .main::before{
+            content:'';position:absolute;inset:0;
+            background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+            background-size:20px 20px;pointer-events:none;z-index:0;
+        }
+
+        .topbar{
+            padding:14px 28px;
+            border-bottom:1px solid var(--border);
+            display:flex;align-items:center;justify-content:space-between;
+            background:var(--bg);position:relative;z-index:1;
+            transition:background .4s,border-color .4s;flex-shrink:0;
+        }
+
+        .topbar-left{display:flex;align-items:center;gap:12px;}
+        .topbar h2{font-size:14.5px;font-weight:600;color:var(--text-1);transition:color .4s;}
+        .topbar-status{font-size:11.5px;color:var(--text-2);display:flex;align-items:center;gap:6px;transition:color .4s;}
+
+        .dot-live{
+            width:6px;height:6px;background:#52B788;border-radius:50%;
+            animation:livePulse 2s infinite;
+        }
+        @keyframes livePulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+        .topbar-actions{display:flex;gap:6px;}
+        .top-btn{
+            width:34px;height:34px;border-radius:8px;
+            border:1px solid var(--border);background:var(--bg);
+            color:var(--text-2);cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;transition:all .2s;
+        }
+        .top-btn:hover{background:var(--bg-hover);color:var(--accent);border-color:var(--accent);}
+
+        .mob-btn{display:none;}
+        .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99;}
+
+        /* ========== MESSAGES ========== */
+        .msgs{flex:1;overflow-y:auto;padding:28px 28px 8px;position:relative;z-index:1;scroll-behavior:smooth;}
+        .msgs::-webkit-scrollbar{width:5px;}
+        .msgs::-webkit-scrollbar-track{background:transparent;}
+        .msgs::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:3px;}
+
+        .msg{display:flex;gap:12px;margin-bottom:24px;max-width:740px;animation:msgSlide .35s ease;}
+        @keyframes msgSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+        .msg.user{flex-direction:row-reverse;margin-left:auto;}
+
+        .av{
+            width:32px;height:32px;border-radius:9px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;flex-shrink:0;margin-top:2px;
+        }
+        .av.bot-av{background:linear-gradient(135deg,#2D6A4F,#52B788);color:#fff;}
+        .av.usr-av{background:var(--bg-deep);color:var(--text-3);border:1px solid var(--border);transition:all .4s;}
+
+        .msg-body{flex:1;min-width:0;}
+
+        .bubble{
+            padding:13px 17px;border-radius:16px;font-size:13.5px;line-height:1.72;
+            position:relative;
+        }
+
+        .msg.bot .bubble{
+            background:var(--bg-card);color:var(--text-1);
+            border:1px solid var(--border);border-top-left-radius:4px;
+            box-shadow:var(--shadow-sm);transition:background .4s,color .4s,border-color .4s;
+        }
+        .msg.user .bubble{
+            background:var(--bg-user);color:var(--text-inv);
+            border-top-right-radius:4px;
+            box-shadow:0 2px 10px rgba(45,106,79,0.18);
+        }
+
+        .bubble p{margin-bottom:6px;}
+        .bubble p:last-child{margin-bottom:0;}
+        .bubble strong{font-weight:600;}
+        .bubble ul,.bubble ol{padding-left:18px;margin:4px 0 8px;}
+        .bubble li{margin-bottom:3px;}
+        .bubble code{background:var(--bg-copy);padding:1px 5px;border-radius:4px;font-size:12.5px;font-family:'Courier New',monospace;}
+
+        .msg-acts{
+            display:flex;gap:3px;margin-top:7px;
+            opacity:0;transform:translateY(-3px);transition:all .2s;
+        }
+        .msg.bot:hover .msg-acts{opacity:1;transform:translateY(0);}
+
+        .act-btn{
+            padding:4px 9px;border-radius:5px;border:none;
+            background:var(--bg-copy);color:var(--text-2);
+            font-size:11px;font-family:'DM Sans',sans-serif;
+            cursor:pointer;display:flex;align-items:center;gap:4px;
+            transition:all .2s;
+        }
+        .act-btn:hover{background:var(--bg-hover);color:var(--accent);}
+        .act-btn.done{color:var(--accent);}
+
+        .msg-ts{font-size:10.5px;color:var(--text-3);margin-top:5px;opacity:.7;transition:color .4s;}
+        .msg.user .msg-ts{text-align:right;}
+
+        /* ========== TYPING ========== */
+        .typing{display:flex;gap:5px;padding:2px 0;}
+        .typing i{width:6px;height:6px;background:var(--typing);border-radius:50%;animation:bounce 1.4s infinite ease-in-out;}
+        .typing i:nth-child(2){animation-delay:.15s;}
+        .typing i:nth-child(3){animation-delay:.3s;}
+        @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.35;}30%{transform:translateY(-7px);opacity:1;}}
+
+        /* ========== SUGGESTIONS ========== */
+        .sugs{display:flex;flex-wrap:wrap;gap:7px;padding:0 28px 12px;position:relative;z-index:1;}
+        .sug{
+            padding:7px 14px;border-radius:18px;
+            border:1px solid var(--sug-border);background:var(--bg-card);
+            color:var(--text-2);font-size:12.5px;font-family:'DM Sans',sans-serif;
+            cursor:pointer;transition:all .2s;white-space:nowrap;
+        }
+        .sug:hover{border-color:var(--accent);color:var(--accent);background:var(--bg-hover);transform:translateY(-1px);}
+
+        /* ========== INPUT ========== */
+        .input-box{
+            padding:12px 28px 22px;
+            border-top:1px solid var(--border);
+            background:var(--bg);position:relative;z-index:1;
+            transition:background .4s,border-color .4s;flex-shrink:0;
+        }
+
+        .input-wrap{
+            display:flex;align-items:flex-end;gap:9px;
+            background:var(--bg-input);border:1px solid var(--border);
+            border-radius:14px;padding:7px 7px 7px 16px;
+            box-shadow:var(--shadow-sm);transition:all .25s;
+        }
+        .input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,106,79,0.08);}
+
+        #msgInput{
+            flex:1;border:none;outline:none;background:transparent;
+            font-family:'DM Sans',sans-serif;font-size:13.5px;
+            color:var(--text-1);resize:none;max-height:110px;min-height:22px;
+            line-height:1.5;padding:5px 0;transition:color .4s;
+        }
+        #msgInput::placeholder{color:var(--text-3);opacity:.7;}
+
+        .send{
+            width:36px;height:36px;border-radius:9px;border:none;
+            background:var(--accent);color:#fff;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            font-size:14px;transition:all .25s;flex-shrink:0;
+        }
+        .send:hover{background:var(--accent-hover);transform:scale(1.04);}
+        .send:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+
+        .input-note{font-size:10.5px;color:var(--text-3);margin-top:7px;opacity:.6;text-align:center;transition:color .4s;}
+
+        /* ========== TOAST ========== */
+        .toast{
+            position:fixed;bottom:96px;left:50%;
+            transform:translateX(-50%) translateY(16px);
+            background:var(--toast-bg);color:var(--toast-fg);
+            padding:9px 18px;border-radius:9px;font-size:12.5px;
+            font-family:'DM Sans',sans-serif;opacity:0;
+            transition:all .3s;z-index:1000;pointer-events:none;
+            display:flex;align-items:center;gap:7px;
+            box-shadow:0 4px 14px rgba(0,0,0,0.15);
+        }
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+        /* ========== WELCOME ========== */
+        .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:40px 20px;}
+
+        .w-icon{
+            width:68px;height:68px;
+            background:linear-gradient(135deg,#2D6A4F,#52B788);
+            border-radius:19px;display:flex;align-items:center;justify-content:center;
+            font-size:30px;color:#fff;margin-bottom:22px;
+            box-shadow:0 8px 28px rgba(45,106,79,0.22);
+            animation:wFloat 3s ease-in-out infinite;
+        }
+        @keyframes wFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+
+        .welcome h1{font-family:'Playfair Display',serif;font-size:30px;font-weight:800;margin-bottom:7px;color:var(--text-1);transition:color .4s;}
+        .welcome p{color:var(--text-2);font-size:14px;max-width:420px;line-height:1.6;margin-bottom:30px;transition:color .4s;}
+
+        .w-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:500px;width:100%;}
+
+        .w-card{
+            padding:15px;border:1px solid var(--border);border-radius:12px;
+            background:var(--bg-card);cursor:pointer;text-align:left;
+            transition:all .25s;
+        }
+        .w-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+        .w-card i{font-size:17px;color:var(--accent);margin-bottom:7px;display:block;transition:color .4s;}
+        .w-card h3{font-size:12.5px;font-weight:600;color:var(--text-1);margin-bottom:3px;transition:color .4s;}
+        .w-card p{font-size:11.5px;color:var(--text-2);margin:0;line-height:1.4;transition:color .4s;}
+
+        /* ========== RESPONSIVE ========== */
+        @media(max-width:768px){
+            .sidebar{position:fixed;left:-272px;top:0;height:100vh;z-index:100;transition:left .3s;}
+            .sidebar.open{left:0;}
+            .overlay.show{display:block;}
+            .mob-btn{display:flex;}
+            .msgs{padding:18px 14px 6px;}
+            .sugs{padding:0 14px 10px;}
+            .input-box{padding:10px 14px 18px;}
+            .w-cards{grid-template-columns:1fr;}
+            .welcome h1{font-size:23px;}
+        }
+
+        /* ========== GLOBAL TRANSITION ========== */
+        .sidebar,.sb-head,.sb-foot,.main,.topbar,.bubble,.input-wrap,.w-card,.sug,.hist-item{
+            transition:background .4s,border-color .4s,color .4s,box-shadow .4s;
+        }
+        .msg,.send,.sug,.w-card,.top-btn,.act-btn{transition:all .25s ease;}
+        .toggle::after{transition:transform .3s;}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sb-head">
+                <div class="logo">
+                    <div class="logo-mark"><i class="fas fa-seedling"></i></div>
+                    <div>
+                        <div class="logo-type">AgriBot</div>
+                        <div class="logo-sub">AI Assistant</div>
+                    </div>
+                </div>
+            </div>
+            <button class="new-btn" onclick="newChat()"><i class="fas fa-plus"></i> New Conversation</button>
+            <div class="history" id="historyList">
+                <div class="hist-label">Recent</div>
+                <div class="hist-item active"><i class="far fa-comment"></i>Soil Health Assessment</div>
+                <div class="hist-item"><i class="far fa-comment"></i>Crop Rotation Strategies</div>
+                <div class="hist-item"><i class="far fa-comment"></i>Pest Management Tips</div>
+                <div class="hist-item"><i class="far fa-comment"></i>Irrigation Scheduling</div>
+                <div class="hist-item"><i class="far fa-comment"></i>Organic Fertilizer Guide</div>
+            </div>
+            <div class="sb-foot">
+                <div class="theme-row">
+                    <span class="theme-label" id="themeIcon"><i class="fas fa-moon"></i> Dark Mode</span>
+                    <button class="toggle" id="toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+                </div>
+            </div>
+        </aside>
+        <div class="overlay" id="overlay" onclick="closeSB()"></div>
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="top-btn mob-btn" onclick="openSB()" aria-label="Menu"><i class="fas fa-bars"></i></button>
+                    <div>
+                        <h2>Agricultural Advisory</h2>
+                        <div class="topbar-status"><span class="dot-live"></span> Online &mdash; Ready to assist</div>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <button class="top-btn" title="Search" aria-label="Search"><i class="fas fa-search"></i></button>
+                    <button class="top-btn" title="More" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
+                </div>
+            </header>
+            <div class="msgs" id="msgs">
+                <div class="welcome" id="welcome">
+                    <div class="w-icon"><i class="fas fa-leaf"></i></div>
+                    <h1>How can I help your farm today?</h1>
+                    <p>Expert agricultural guidance at your fingertips — from soil science to harvest planning, powered by AI.</p>
+                    <div class="w-cards">
+                        <div class="w-card" onclick="useSug('What are the best cover crops for improving soil health in clay soil?')">
+                            <i class="fas fa-seedling"></i><h3>Soil Health</h3><p>Best cover crops for clay soil improvement</p>
+                        </div>
+                        <div class="w-card" onclick="useSug('How do I create a drip irrigation schedule for tomato plants in a greenhouse?')">
+                            <i class="fas fa-tint"></i><h3>Irrigation</h3><p>Drip irrigation for greenhouse tomatoes</p>
+                        </div>
+                        <div class="w-card" onclick="useSug('What integrated pest management strategies work for organic wheat farming?')">
+                            <i class="fas fa-bug"></i><h3>Pest Control</h3><p>IPM strategies for organic wheat</p>
+                        </div>
+                        <div class="w-card" onclick="useSug('Can you explain the NPK ratio and how to choose the right fertilizer for corn?')">
+                            <i class="fas fa-flask"></i><h3>Fertilization</h3><p>Understanding NPK ratios for corn</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sugs" id="sugs">
+                <button class="sug" onclick="useSug('Seasonal planting calendar for Zone 6')">Seasonal planting calendar</button>
+                <button class="sug" onclick="useSug('How to test soil pH at home')">Test soil pH at home</button>
+                <button class="sug" onclick="useSug('Companion planting guide for vegetables')">Companion planting guide</button>
+                <button class="sug" onclick="useSug('Drought-resistant crop varieties')">Drought-resistant crops</button>
+            </div>
+            <div class="input-box">
+                <div class="input-wrap">
+                    <textarea id="msgInput" rows="1" placeholder="Ask about crops, soil, irrigation, pest control..." onkeydown="onKey(event)" oninput="resize(this);checkBtn()"></textarea>
+                    <button class="send" id="sendBtn" onclick="send()" disabled aria-label="Send"><i class="fas fa-arrow-up"></i></button>
+                </div>
+                <div class="input-note">AgriBot can make mistakes. Verify critical agricultural decisions with local experts.</div>
+            </div>
+        </main>
+    </div>
+    <div class="toast" id="toast"><i class="fas fa-check"></i><span id="toastTxt">Copied to clipboard</span></div>
+
+    <script>
+    /* ===================== STATE ===================== */
+    let dark = false, typing = false, msgs = [];
+
+    /* ===================== THEME ===================== */
+    function toggleTheme() {
+        dark = !dark;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
+        document.getElementById('toggle').classList.toggle('on', dark);
+        document.getElementById('themeIcon').innerHTML = dark
+            ? '<i class="fas fa-sun"></i> Light Mode'
+            : '<i class="fas fa-moon"></i> Dark Mode';
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').matches) toggleTheme();
+
+    /* ===================== SIDEBAR MOBILE ===================== */
+    function openSB() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+    function closeSB() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+    /* ===================== INPUT ===================== */
+    const inp = document.getElementById('msgInput');
+    const btn = document.getElementById('sendBtn');
+    function checkBtn() { btn.disabled = !inp.value.trim(); }
+    function resize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 110) + 'px'; }
+    function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (inp.value.trim()) send(); } }
+
+    /* ===================== SEND ===================== */
+    function send() {
+        const t = inp.value.trim();
+        if (!t || typing) return;
+        const w = document.getElementById('welcome');
+        if (w) w.remove();
+        addMsg(t, 'user');
+        inp.value = ''; inp.style.height = 'auto'; btn.disabled = true;
+        typing = true; showTyping();
+        setTimeout(() => { rmTyping(); typing = false; addMsg(genResp(t), 'bot'); }, 1100 + Math.random() * 1400);
+    }
+
+    function useSug(t) { inp.value = t; checkBtn(); send(); }
+
+    /* ===================== RENDER ===================== */
+    function addMsg(text, role) {
+        const c = document.getElementById('msgs');
+        const ts = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+        const idx = msgs.length;
+        msgs.push({ role, text });
+
+        const d = document.createElement('div');
+        d.className = 'msg ' + role;
+        const avCls = role === 'bot' ? 'bot-av' : 'usr-av';
+        const avIco = role === 'bot' ? 'fa-leaf' : 'fa-user';
+        const html = role === 'bot' ? fmtBot(text) : esc(text);
+
+        d.innerHTML = `
+            <div class="av ${avCls}"><i class="fas ${avIco}"></i></div>
+            <div class="msg-body">
+                <div class="bubble">${html}</div>
+                ${role === 'bot' ? `<div class="msg-acts">
+                    <button class="act-btn" onclick="copyMsg(${idx},this)"><i class="far fa-copy"></i> Copy</button>
+                    <button class="act-btn" onclick="regen(${idx},this)"><i class="fas fa-rotate-right"></i> Regenerate</button>
+                </div>` : ''}
+                <div class="msg-ts">${ts}</div>
+            </div>`;
+        c.appendChild(d);
+        scroll();
+    }
+
+    function fmtBot(t) {
+        let s = esc(t);
+        s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/^[-•] (.+)$/gm, '<li>$1</li>');
+        s = s.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+        s = s.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+        s = s.replace(/\n\n/g, '</p><p>');
+        s = s.replace(/\n/g, '<br>');
+        return '<p>' + s + '</p>';
+    }
+
+    function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+    /* ===================== TYPING ===================== */
+    function showTyping() {
+        const c = document.getElementById('msgs');
+        const d = document.createElement('div');
+        d.className = 'msg bot'; d.id = 'typInd';
+        d.innerHTML = `<div class="av bot-av"><i class="fas fa-leaf"></i></div>
+            <div class="msg-body"><div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div></div>`;
+        c.appendChild(d); scroll();
+    }
+    function rmTyping() { const e = document.getElementById('typInd'); if (e) e.remove(); }
+
+    /* ===================== COPY ===================== */
+    function copyMsg(idx, btn) {
+        navigator.clipboard.writeText(msgs[idx].text).then(() => {
+            btn.classList.add('done');
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            toast('Copied to clipboard');
+            setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+        });
+    }
+
+    /* ===================== REGENERATE ===================== */
+    function regen(idx, btn) {
+        if (typing) return;
+        const body = btn.closest('.msg-body');
+        const bubble = body.querySelector('.bubble');
+        typing = true;
+        bubble.innerHTML = '<div class="typing"><i></i><i></i><i></i></div>';
+        const lastUser = [...msgs].reverse().find(m => m.role === 'user');
+        setTimeout(() => {
+            typing = false;
+            const r = genResp(lastUser ? lastUser.text : '');
+            msgs[idx].text = r;
+            bubble.innerHTML = fmtBot(r);
+            scroll();
+        }, 900 + Math.random() * 800);
+    }
+
+    /* ===================== TOAST ===================== */
+    function toast(t) {
+        const el = document.getElementById('toast');
+        document.getElementById('toastTxt').textContent = t;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2000);
+    }
+
+    /* ===================== SCROLL ===================== */
+    function scroll() { const c = document.getElementById('msgs'); setTimeout(() => c.scrollTop = c.scrollHeight, 40); }
+
+    /* ===================== NEW CHAT ===================== */
+    function newChat() {
+        msgs = [];
+        document.getElementById('msgs').innerHTML = `
+        <div class="welcome" id="welcome">
+            <div class="w-icon"><i class="fas fa-leaf"></i></div>
+            <h1>How can I help your farm today?</h1>
+            <p>Expert agricultural guidance at your fingertips — from soil science to harvest planning, powered by AI.</p>
+            <div class="w-cards">
+                <div class="w-card" onclick="useSug('What are the best cover crops for improving soil health in clay soil?')"><i class="fas fa-seedling"></i><h3>Soil Health</h3><p>Best cover crops for clay soil improvement</p></div>
+                <div class="w-card" onclick="useSug('How do I create a drip irrigation schedule for tomato plants in a greenhouse?')"><i class="fas fa-tint"></i><h3>Irrigation</h3><p>Drip irrigation for greenhouse tomatoes</p></div>
+                <div class="w-card" onclick="useSug('What integrated pest management strategies work for organic wheat farming?')"><i class="fas fa-bug"></i><h3>Pest Control</h3><p>IPM strategies for organic wheat</p></div>
+                <div class="w-card" onclick="useSug('Can you explain the NPK ratio and how to choose the right fertilizer for corn?')"><i class="fas fa-flask"></i><h3>Fertilization</h3><p>Understanding NPK ratios for corn</p></div>
+            </div>
+        </div>`;
+        closeSB();
+    }
+
+    /* ===================== RESPONSE ENGINE ===================== */
+    function genResp(q) {
+        const t = q.toLowerCase();
+        const R = {
+            soil: [
+                `Great question about soil health! Here's what I'd recommend:\n\n**Key Soil Health Indicators:**\n- **Organic Matter Content** — Aim for 3-5% in most agricultural soils\n- **Soil Structure** — Look for crumbly, well-aggregated soil that allows water infiltration\n- **Biological Activity** — Earthworm counts (10+ per shovel is healthy) and root growth patterns\n- **pH Level** — Most crops prefer 6.0-7.0; test annually\n\n**Improvement Strategies:**\n- Incorporate cover crops like crimson clover or winter rye during off-seasons\n- Reduce tillage intensity to preserve soil structure and microbial networks\n- Apply composted organic matter at 2-4 tons per acre annually\n- Use mulching to reduce erosion and maintain moisture\n\nWould you like me to dive deeper into any specific soil parameter or testing method?`,
+                `Soil management is the foundation of successful farming. Let me break this down:\n\n**Soil Testing Protocol:**\n- Collect samples from multiple points in each field (zigzag pattern)\n- Sample at 6-8 inch depth for most crops\n- Test every 2-3 years minimum, annually for high-value crops\n- Send to a certified laboratory for complete analysis\n\n**Common Soil Problems & Solutions:**\n- **Compaction** — Use deep-rooting cover crops (radish, rapeseed) to naturally break hardpan layers\n- **Low Organic Matter** — Add compost, manure, or plant green manure crops\n- **Poor Drainage** — Consider tile drainage or raised beds in persistent wet areas\n- **Nutrient Imbalance** — Follow soil test recommendations; avoid over-application of any single nutrient\n\nThe most important principle: **feed the soil, not just the crop**. Healthy soil biology will make nutrients available to plants naturally.`
+            ],
+            irrig: [
+                `Here's a comprehensive approach to irrigation scheduling:\n\n**Drip Irrigation Best Practices:**\n- **Frequency** — For most vegetables, water every 1-3 days depending on growth stage and weather\n- **Volume** — Mature tomato plants need 2-3 liters per day during peak season\n- **Timing** — Early morning (5-7 AM) minimizes evaporation and disease pressure\n- **Emitter Placement** — 2 emitters per plant, 6 inches from the stem, on opposite sides\n\n**Smart Scheduling Factors:**\n- Use soil moisture sensors at 6" and 12" depth for data-driven decisions\n- Reference evapotranspiration (ET₀) data from local weather stations\n- Adjust for crop growth stage: increase water as canopy develops\n- Factor in rainfall — skip irrigation if soil moisture is adequate\n\n**Greenhouse Specifics:**\n- Greenhouse crops lose 30-50% less water than field-grown equivalents\n- Monitor relative humidity — keep below 75% to prevent fungal diseases\n- Consider a fertigation system to combine watering with nutrient delivery\n\nShall I help you calculate a specific irrigation schedule based on your crop and climate zone?`,
+                `Efficient water management is critical for both yield and sustainability:\n\n**Irrigation Efficiency Tips:**\n- **Drip systems** achieve 90-95% efficiency vs. 50-70% for sprinkler systems\n- **Mulching** around plants can reduce water needs by 25-50%\n- **Deficit irrigation** strategies can improve fruit quality in some crops while saving water\n\n**Monitoring Tools:**\n- Tensiometers for real-time soil water tension readings\n- Capacitance sensors for continuous moisture monitoring\n- Weather-based irrigation controllers that adjust automatically\n\n**Water Quality Matters:**\n- Test irrigation water for salinity, pH, and mineral content\n- High sodium water can damage soil structure over time\n- Chlorine levels above 1 ppm may harm beneficial soil microbes\n\nThe key insight: **over-watering is often more damaging than under-watering** because it starves roots of oxygen and promotes disease.`
+            ],
+            pest: [
+                `Integrated Pest Management (IPM) is the most effective and sustainable approach:\n\n**IPM Pyramid — Start from the Bottom:**\n\n1. **Cultural Controls** — Crop rotation, resistant varieties, proper spacing, and sanitation\n2. **Biological Controls** — Encourage beneficial insects (ladybugs, lacewings, parasitic wasps), use Bt (Bacillus thuringiensis) for caterpillar control\n3. **Physical Controls** — Row covers, traps, hand-picking, and exclusion netting\n4. **Chemical Controls** — Use as last resort; choose selective pesticides that spare beneficials\n\n**Monitoring Essentials:**\n- Set up sticky traps and pheromone traps for early detection\n- Scout fields weekly — look under leaves, at growing points, and in soil\n- Establish economic threshold levels — don't spray at first sight\n- Keep detailed records of pest populations and treatments\n\n**For Organic Wheat Specifically:**\n- Use resistant wheat varieties when available\n- Adjust planting dates to avoid peak pest periods\n- Encourage ground beetles and spiders as natural predators\n- Apply neem oil or kaolin clay as approved organic treatments\n\nThe goal of IPM isn't eradication — it's **managing pest populations below economic damage levels** while minimizing environmental impact.`
+            ],
+            fert: [
+                `Understanding NPK ratios is essential for efficient fertilization:\n\n**Breaking Down NPK:**\n- **N (Nitrogen)** — Drives vegetative growth, leaf production, and chlorophyll. Deficiency shows as yellowing of older leaves\n- **P (Phosphorus)** — Critical for root development, flowering, and fruit set. Deficiency shows as purpling of leaves\n- **K (Potassium)** — Strengthens cell walls, improves drought tolerance and disease resistance. Deficiency shows as brown leaf margins\n\n**For Corn — Recommended Approach:**\n- **Pre-plant** — Apply phosphorus and potassium based on soil test (typical: 40-60 lbs P₂O₅/acre, 60-120 lbs K₂O/acre)\n- **Starter** — 10-20 lbs N/acre in-furrow or 2x2 placement\n- **Side-dress** — 60-120 lbs N/acre at V6 stage, adjust based on soil nitrate test\n- **Total N** — Generally 150-200 lbs N/acre for 180+ bushel corn\n\n**Efficiency Tips:**\n- Split nitrogen applications to reduce leaching losses\n- Use nitrogen stabilizers (inhibitors) with pre-plant applications\n- Match fertilizer form to application timing — use slow-release for pre-plant\n- Consider foliar micronutrients (zinc, boron) if soil tests indicate deficiency\n\n**Always base fertilizer decisions on soil test data** — over-fertilization wastes money and can pollute waterways.`
+            ],
+            cover: [
+                `Cover crops are one of the most powerful tools for soil improvement:\n\n**Best Cover Crops for Clay Soil:**\n\n**Legumes (Nitrogen Fixers):**\n- **Crimson Clover** — Beautiful red blooms, fixes 70-130 lbs N/acre, winter-hardy in Zone 6+\n- **Hairy Vetch** — Vigorous growth, fixes 80-150 lbs N/acre, excellent biomass producer\n- **Winter Peas** — Good for fall planting, fixes moderate nitrogen, easy to terminate\n\n**Grasses (Soil Structure Builders):**\n- **Cereal Rye** — Deep roots break compaction, massive root biomass, winter-hardy everywhere\n- **Annual Ryegrass** — Dense root system, excellent for surface compaction, easy to kill\n- **Oats** — Quick fall growth, winter-kills in northern zones (no termination needed)\n\n**Brassicas (Biodrills):**\n- **Daikon Radish** — Taproot penetrates 3-4 feet, naturally fractures compacted layers, scavenges residual nitrogen\n- **Mustard** — Biofumigant properties suppress soil-borne pathogens\n\n**My Recommendation for Clay Soil:**\nPlant a **multi-species mix** — cereal rye + crimson clover + daikon radish. This combination addresses structure, nitrogen, and compaction simultaneously.\n\nTerminate cover crops 2-3 weeks before planting your cash crop to allow decomposition and avoid nitrogen tie-up.`
+            ],
+            comp: [
+                `Companion planting is a time-tested strategy that can boost yields and reduce pest problems:\n\n**Proven Companion Combinations:**\n\n**Tomatoes** pair well with:\n- **Basil** — Repels tomato hornworms and aphids, may improve flavor\n- **Marigolds** — Repels root-knot nematodes (use French marigolds)\n- **Borage** — Attracts pollinators, repels tomato worm\n- **Carrots** — Different root depths, no competition\n\n**Avoid planting tomatoes near:** Fennel, walnuts, cabbage family\n\n**Beans** are excellent companions for:\n- **Corn** — Classic Three Sisters: beans fix nitrogen, corn provides support, squash suppresses weeds\n- **Carrots** — Mutually beneficial root zone usage\n- **Cucumbers** — Beans repel cucumber beetles\n\n**Other Powerful Pairings:**\n- **Nasturtiums + Squash** — Trap crop for aphids, repels squash bugs\n- **Garlic + Roses** — Repels aphids and black spot fungus\n- **Dill + Cabbage** — Attracts beneficial wasps that parasitize cabbage worms\n- **Sunflowers + Cucumbers** — Sunflowers provide shade and trellis support\n\n**Key Principles:**\n- Mix root depths to avoid competition\n- Include flowers to attract pollinators and beneficial insects\n- Use aromatic herbs as natural pest deterrents\n- Avoid planting members of the same family together (disease spread)`
+            ],
+            drought: [
+                `Drought-resistant crops are becoming increasingly important for climate resilience:\n\n**Grain Crops:**\n- **Sorghum** — Uses 30% less water than corn, produces well in 400mm+ rainfall\n- **Pearl Millet** — Extremely drought-tolerant, thrives in sandy soils with 300mm rainfall\n- **Teff** — Ancient grain, excellent drought and heat tolerance, growing market demand\n\n**Vegetables:**\n- **Okra** — Thrives in heat, minimal water needs once established\n- **Sweet Potato** — Deep roots access water, produces well in dry conditions\n- **Chiltepin Pepper** — One of the most drought-tolerant vegetables available\n- **Amaranth** — Both leaves and grain are edible, remarkable drought endurance\n\n**Legumes:**\n- **Cowpeas (Black-eyed Peas)** — Excellent heat and drought tolerance, fixes nitrogen\n- **Pigeon Peas** — Deep taproot system, productive in low-rainfall areas\n- **Mung Beans** — Short season, can dodge drought periods\n\n**Drought Management Strategies:**\n- Choose early-maturing varieties to finish before drought peaks\n- Increase plant spacing to reduce competition for limited water\n- Use mulch (3-4 inches) to dramatically reduce soil evaporation\n- Consider no-till to preserve soil moisture\n- Invest in soil organic matter — each 1% increase holds ~20,000 gallons more water per acre`
+            ],
+            season: [
+                `Here's a practical planting calendar for **USDA Zone 6** (average last frost: mid-April, first frost: mid-October):\n\n**Early Spring (March-April):**\n- Start indoors: Tomatoes, peppers, eggplant, onions, herbs\n- Direct sow (cold-hardy): Peas, spinach, radishes, carrots, lettuce, potatoes, onion sets\n\n**Late Spring (May-June):**\n- Transplant: Tomatoes, peppers, eggplant after last frost\n- Direct sow: Beans, corn, cucumbers, squash, melons, okra\n- Succession plant: Lettuce, radishes, beets every 2 weeks\n\n**Summer (July-August):**\n- Direct sow: Fall crops — carrots, beets, turnips, kohlrabi\n- Start indoors: Broccoli, cabbage, cauliflower for fall transplant\n- Plant cover crops in any harvested areas\n\n**Fall (September-October):**\n- Transplant: Cole crops for late harvest\n- Direct sow: Spinach, garlic (plant before first frost), radishes, mache\n- Plant cover crops: Cereal rye, crimson clover, winter peas\n\n**Winter Planning (November-February):**\n- Order seeds and plan crop rotations\n- Maintain cover crops\n- Review soil test results and plan amendments\n\n**Pro Tip:** Extend your season with row covers (+2-4°F), low tunnels (+4-8°F), or cold frames (+6-10°F).`
+            ],
+            ph: [
+                `Testing soil pH at home is straightforward and gives valuable information:\n\n**Simple Home Testing Methods:**\n\n**1. DIY Test Kit (Most Reliable Home Method):**\n- Cost: $8-15 at any garden center\n- Mix soil sample with distilled water and the provided solution\n- Compare color to the chart — accuracy within 0.5 pH units\n\n**2. Vinegar & Baking Soda Test (Rough Indicator):**\n- Put 2 tablespoons soil in two separate containers\n- Add ½ cup vinegar to one — if it fizzes, soil is alkaline (pH > 7.5)\n- Add ½ cup water + baking soda to other — if it fizzes, soil is acidic (pH < 5.5)\n- No reaction = neutral range (6.0-7.5)\n\n**3. Electronic pH Meter:**\n- Insert probe into moist soil\n- Read digital display\n- Calibrate regularly with buffer solutions\n- Accuracy varies greatly by quality ($15 vs $150 models)\n\n**Proper Sampling Technique:**\n- Take 5-10 sub-samples from different spots in the area\n- Mix together in a clean bucket for a composite sample\n- Sample at 4-6 inch depth for gardens, 6-8 inch for fields\n- Remove debris, rocks, and root pieces\n- Air dry before testing\n\n**Important:** For actual fertilization decisions, **send samples to a university or certified lab** ($15-30). Home tests are great for monitoring trends, but lab tests give complete nutrient analysis too.`
+            ],
+            def: [
+                `That's a great agricultural question. Let me share some insights:\n\n**General Farming Best Practices:**\n- **Know your soil** — Regular testing is the foundation of all good decisions\n- **Plan rotations** — Never plant the same family in the same spot two years in a row\n- **Observe closely** — Walk your fields weekly; early detection prevents big problems\n- **Start small** — Test new practices on a small scale before committing\n- **Keep records** — What worked, what didn't, weather conditions, inputs used\n\n**Key Principles for Success:**\n- Build soil health first — everything else follows\n- Diversity above ground (crops) creates diversity below ground (soil biology)\n- Timing matters more than total inputs — right product, right time, right place\n- Water management is often the limiting factor — invest in efficiency\n\nCould you be more specific about your crop, region, or challenge? I can give much more targeted advice with those details.`,
+                `I appreciate your question about agriculture. Here's what I can share:\n\n**Modern Agriculture is Evolving Rapidly:**\n- **Precision agriculture** uses GPS, sensors, and data analytics to optimize every input\n- **Regenerative practices** are gaining mainstream adoption — no-till, cover crops, rotational grazing\n- **Biological products** — mycorrhizal inoculants, biofertilizers, biostimulants — are supplementing traditional chemistry\n- **Climate adaptation** is driving variety selection and planting date shifts\n\n**Where to Focus Your Energy:**\n1. **Soil health** — This gives the highest ROI of any farm investment\n2. **Efficient water use** — Drip irrigation, soil moisture monitoring, drought planning\n3. **Integrated pest management** — Reduces input costs while protecting beneficials\n4. **Market awareness** — Growing consumer demand for organic, local, and sustainably produced food\n\nI'd love to help with a more specific question — whether it's about a particular crop, pest issue, soil problem, or farming strategy. What's on your mind?`
+            ]
+        };
+
+        if (t.includes('cover crop') || t.includes('cover')) return pick(R.cover);
+        if (t.includes('companion') || t.includes('plant together') || t.includes('pairing')) return pick(R.comp);
+        if (t.includes('drought') || t.includes('dry') || t.includes('resistant')) return pick(R.drought);
+        if (t.includes('season') || t.includes('calendar') || t.includes('when to plant') || t.includes('zone')) return pick(R.season);
+        if (t.includes('ph ') || t.includes('test soil') || t.includes('ph at')) return pick(R.ph);
+        if (t.includes('soil')) return pick(R.soil);
+        if (t.includes('irrigat') || t.includes('water') || t.includes('drip')) return pick(R.irrig);
+        if (t.includes('pest') || t.includes('ipm') || t.includes('insect') || t.includes('bug')) return pick(R.pest);
+        if (t.includes('fertiliz') || t.includes('npk') || t.includes('nitrogen') || t.includes('nutrient')) return pick(R.fert);
+        return pick(R.def);
+    }
+
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    </script>
+</body>
+</html>

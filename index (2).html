@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yieldX — Global AgriTech Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ============ DARK THEME ============ */
+        [data-theme="dark"]{
+            --bg:#030B06;--bg-nav:rgba(5,18,10,0.85);--bg-card:rgba(10,38,23,0.4);
+            --bg-card-h:rgba(14,52,32,0.55);--bg-input:rgba(10,38,23,0.5);
+            --bg-modal:rgba(4,14,8,0.97);--bg-menu:rgba(3,11,6,0.98);
+            --border:rgba(34,197,94,0.09);--border-h:rgba(34,197,94,0.28);
+            --green:#22C55E;--green-l:#4ADE80;--green-d:#15803D;--green-deep:#064E3B;
+            --amber:#F59E0B;--amber-s:rgba(245,158,11,0.1);--red:#EF4444;
+            --text:#ECFDF5;--text-s:#86EFAC;--text-m:rgba(134,231,172,0.45);
+            --overlay:rgba(0,0,0,0.6);--shadow:rgba(0,0,0,0.3);
+            --grad-img:rgba(3,11,6,0.7);--select-bg:#0A2618;
+            --scrollbar:#064E3B;--orb-op:0.12;
+            --menu-overlay:rgba(0,0,0,0.5);
+        }
+        /* ============ LIGHT THEME ============ */
+        [data-theme="light"]{
+            --bg:#F0F7EC;--bg-nav:rgba(255,255,255,0.88);--bg-card:rgba(255,255,255,0.7);
+            --bg-card-h:rgba(235,250,238,0.9);--bg-input:rgba(255,255,255,0.8);
+            --bg-modal:rgba(248,252,245,0.99);--bg-menu:rgba(240,247,236,0.99);
+            --border:rgba(22,163,74,0.1);--border-h:rgba(22,163,74,0.28);
+            --green:#16A34A;--green-l:#22C55E;--green-d:#15803D;--green-deep:#166534;
+            --amber:#D97706;--amber-s:rgba(217,119,6,0.08);--red:#DC2626;
+            --text:#14332A;--text-s:#3D7A52;--text-m:rgba(61,122,82,0.55);
+            --overlay:rgba(0,0,0,0.3);--shadow:rgba(22,163,74,0.08);
+            --grad-img:rgba(20,51,42,0.55);--select-bg:#FFFFFF;
+            --scrollbar:#C6E6CD;--orb-op:0.07;
+            --menu-overlay:rgba(0,0,0,0.25);
+        }
+
+        /* ============ RESET ============ */
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{
+            font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+            overflow-x:hidden;min-height:100vh;
+            transition:background .4s,color .4s;
+        }
+        h1,h2,h3,h4,h5{font-family:'Space Grotesk',sans-serif;}
+        ::-webkit-scrollbar{width:5px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:3px;}
+
+        /* ============ ORBS ============ */
+        .orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:var(--orb-op);pointer-events:none;z-index:0;}
+        .orb-1{width:min(600px,90vw);height:min(600px,90vw);background:var(--green);top:-200px;left:-150px;animation:orbM 25s infinite ease-in-out;}
+        .orb-2{width:min(500px,80vw);height:min(500px,80vw);background:#0D9488;bottom:-100px;right:-100px;animation:orbM 30s infinite ease-in-out reverse;}
+        .orb-3{width:min(350px,60vw);height:min(350px,60vw);background:var(--amber);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbM 20s infinite ease-in-out 5s;opacity:calc(var(--orb-op)*0.4);}
+        @keyframes orbM{0%,100%{transform:translate(0,0);}25%{transform:translate(40px,-30px);}50%{transform:translate(-20px,50px);}75%{transform:translate(30px,20px);}}
+
+        /* ============ THEME BTN ============ */
+        .theme-btn{
+            width:36px;height:36px;border-radius:9px;border:1px solid var(--border);
+            background:transparent;color:var(--text-s);cursor:pointer;
+            display:flex;align-items:center;justify-content:center;font-size:15px;
+            transition:all .25s;flex-shrink:0;
+        }
+        .theme-btn:hover{border-color:var(--border-h);color:var(--text);background:rgba(34,197,94,0.06);}
+        .theme-btn .fa-sun{display:none;}
+        [data-theme="light"] .theme-btn .fa-moon{display:none;}
+        [data-theme="light"] .theme-btn .fa-sun{display:inline;}
+
+        /* ============ NAV ============ */
+        nav{
+            position:fixed;top:0;left:0;right:0;z-index:100;
+            background:var(--bg-nav);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+            border-bottom:1px solid var(--border);
+            height:clamp(52px,8vw,64px);
+            display:flex;align-items:center;
+            padding:0 clamp(12px,3vw,28px);
+            transition:background .4s,border-color .4s;
+        }
+        .nav-inner{
+            max-width:1320px;margin:0 auto;width:100%;
+            display:flex;align-items:center;justify-content:space-between;gap:8px;
+        }
+        .nav-brand{display:flex;align-items:center;gap:clamp(6px,1.2vw,10px);text-decoration:none;flex-shrink:0;}
+        .nav-logo{
+            width:clamp(28px,4vw,34px);height:clamp(28px,4vw,34px);
+            background:linear-gradient(135deg,var(--green),#059669);border-radius:8px;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-size:clamp(12px,1.5vw,15px);
+            box-shadow:0 0 16px rgba(34,197,94,0.25);
+        }
+        .nav-brand span{
+            font-family:'Space Grotesk',sans-serif;font-weight:700;
+            font-size:clamp(16px,2.5vw,20px);color:var(--text);letter-spacing:-.5px;
+            transition:color .4s;
+        }
+        .nav-brand span em{font-style:normal;color:var(--green);}
+
+        /* Desktop nav */
+        .desk-nav{display:flex;align-items:center;gap:2px;}
+        .nav-link{
+            padding:clamp(6px,1vw,8px) clamp(8px,1.2vw,14px);border-radius:8px;
+            font-size:clamp(12px,1.4vw,13.5px);color:var(--text-s);
+            text-decoration:none;cursor:pointer;transition:all .2s;
+            border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap;
+        }
+        .nav-link:hover,.nav-link.active{color:var(--text);background:rgba(34,197,94,0.08);}
+        .nav-link i{margin-right:4px;font-size:11px;}
+        .nav-dd{position:relative;}
+        .nav-dd-menu{
+            position:absolute;top:calc(100% + 6px);left:50%;
+            transform:translateX(-50%) translateY(6px);
+            background:var(--bg-modal);border:1px solid var(--border-h);border-radius:12px;
+            padding:5px;min-width:180px;opacity:0;visibility:hidden;
+            transition:all .25s;backdrop-filter:blur(20px);box-shadow:0 12px 40px var(--shadow);z-index:10;
+        }
+        .nav-dd:hover .nav-dd-menu{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+        .dd-item{padding:7px 12px;border-radius:7px;font-size:12.5px;color:var(--text-s);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;}
+        .dd-item:hover{background:rgba(34,197,94,0.1);color:var(--text);}
+        .dd-item i{width:15px;text-align:center;font-size:11px;color:var(--green);}
+
+        .nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+        .btn-list{
+            padding:clamp(6px,1vw,8px) clamp(10px,1.5vw,18px);background:var(--green);color:#fff;
+            border:none;border-radius:9px;font-family:'Space Grotesk',sans-serif;
+            font-size:clamp(11.5px,1.3vw,13px);font-weight:600;cursor:pointer;
+            display:flex;align-items:center;gap:6px;transition:all .25s;
+            box-shadow:0 0 16px rgba(34,197,94,0.2);white-space:nowrap;
+        }
+        .btn-list:hover{background:var(--green-l);transform:translateY(-1px);box-shadow:0 4px 20px rgba(34,197,94,0.3);}
+
+        /* Hamburger - hidden on desktop */
+        .hamburger{
+            display:none;background:none;border:none;color:var(--text);
+            font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;
+            width:36px;height:36px;border-radius:8px;
+            align-items:center;justify-content:center;
+            transition:background .2s;
+        }
+        .hamburger:hover{background:rgba(34,197,94,0.06);}
+
+        /* ============ MOBILE MENU OVERLAY ============ */
+        .mobile-overlay{
+            position:fixed;inset:0;z-index:150;
+            background:var(--menu-overlay);
+            opacity:0;visibility:hidden;
+            transition:opacity .3s,visibility .3s;
+        }
+        .mobile-overlay.open{opacity:1;visibility:visible;}
+
+        /* ============ MOBILE MENU PANEL ============ */
+        .mobile-menu{
+            position:fixed;top:0;right:0;bottom:0;z-index:151;
+            width:min(300px,82vw);
+            background:var(--bg-menu);
+            border-left:1px solid var(--border);
+            transform:translateX(100%);
+            transition:transform .35s cubic-bezier(.4,0,.2,1),background .4s;
+            overflow-y:auto;
+            display:flex;flex-direction:column;
+            -webkit-overflow-scrolling:touch;
+        }
+        .mobile-menu.open{transform:translateX(0);}
+        .mobile-menu::-webkit-scrollbar{width:3px;}
+        .mobile-menu::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px;}
+
+        /* Mobile menu header */
+        .mm-head{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:clamp(14px,3vw,20px) clamp(16px,4vw,24px);
+            border-bottom:1px solid var(--border);
+            flex-shrink:0;
+        }
+        .mm-head-brand{display:flex;align-items:center;gap:8px;}
+        .mm-head-brand .nav-logo{width:28px;height:28px;font-size:12px;border-radius:7px;}
+        .mm-head-brand span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:var(--text);}
+        .mm-head-brand span em{font-style:normal;color:var(--green);}
+        .mm-close{
+            width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+            background:none;color:var(--text-m);cursor:pointer;
+            display:flex;align-items:center;justify-content:center;font-size:16px;
+            transition:all .2s;flex-shrink:0;
+        }
+        .mm-close:hover{background:rgba(239,68,68,0.1);color:var(--red);border-color:rgba(239,68,68,0.3);}
+
+        /* Mobile menu body */
+        .mm-body{padding:12px 0;flex:1;overflow-y:auto;}
+        .mm-link{
+            display:flex;align-items:center;gap:10px;
+            padding:13px clamp(16px,4vw,24px);
+            font-size:14px;color:var(--text-s);
+            cursor:pointer;transition:all .15s;
+            border:none;background:none;width:100%;text-align:left;
+            font-family:'DM Sans',sans-serif;
+        }
+        .mm-link:hover,.mm-link.active{color:var(--text);background:rgba(34,197,94,0.06);}
+        .mm-link i{width:20px;text-align:center;font-size:14px;color:var(--green);flex-shrink:0;}
+
+        /* Mobile dropdown */
+        .mm-dd-btn{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:13px clamp(16px,4vw,24px);
+            font-size:14px;color:var(--text-s);
+            cursor:pointer;transition:all .15s;
+            border:none;background:none;width:100%;text-align:left;
+            font-family:'DM Sans',sans-serif;
+        }
+        .mm-dd-btn:hover{color:var(--text);background:rgba(34,197,94,0.06);}
+        .mm-dd-btn-left{display:flex;align-items:center;gap:10px;}
+        .mm-dd-btn-left i{width:20px;text-align:center;font-size:14px;color:var(--green);flex-shrink:0;}
+        .mm-dd-btn .fa-chevron-down{font-size:10px;transition:transform .25s;color:var(--text-m);}
+        .mm-dd-btn.open .fa-chevron-down{transform:rotate(180deg);}
+        .mm-dd-items{
+            max-height:0;overflow:hidden;transition:max-height .3s ease;
+            background:rgba(34,197,94,0.02);
+        }
+        .mm-dd-items.open{max-height:300px;}
+        .mm-dd-item{
+            display:flex;align-items:center;gap:10px;
+            padding:10px clamp(16px,4vw,24px) 10px clamp(46px,10vw,52px);
+            font-size:13px;color:var(--text-s);
+            cursor:pointer;transition:all .15s;
+        }
+        .mm-dd-item:hover{color:var(--text);background:rgba(34,197,94,0.06);}
+        .mm-dd-item i{width:16px;text-align:center;font-size:11px;color:var(--green);flex-shrink:0;}
+
+        /* Mobile menu footer */
+        .mm-foot{
+            padding:clamp(12px,3vw,16px) clamp(16px,4vw,24px);
+            border-top:1px solid var(--border);flex-shrink:0;
+        }
+        .mm-foot .btn-list{width:100%;justify-content:center;padding:12px;font-size:14px;}
+
+        /* ============ HERO ============ */
+        .hero{
+            padding:clamp(80px,12vw,110px) clamp(12px,3vw,28px) clamp(20px,3vw,40px);
+            max-width:1320px;margin:0 auto;position:relative;z-index:1;
+        }
+        .hero-content{text-align:center;max-width:720px;margin:0 auto;}
+        .hero-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            padding:4px clamp(8px,1.5vw,14px);background:var(--amber-s);
+            border:1px solid rgba(245,158,11,0.2);border-radius:20px;
+            font-size:clamp(10px,1.3vw,12px);color:var(--amber);font-weight:500;
+            margin-bottom:clamp(12px,2vw,20px);transition:all .4s;
+        }
+        .hero-badge i{font-size:9px;}
+        .hero h1{
+            font-size:clamp(22px,5.5vw,52px);font-weight:700;line-height:1.1;
+            margin-bottom:clamp(10px,1.8vw,16px);letter-spacing:-1px;
+        }
+        .hero h1 span{background:linear-gradient(135deg,var(--green),var(--green-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero p{
+            font-size:clamp(13px,1.6vw,16px);color:var(--text-s);line-height:1.6;
+            max-width:540px;margin:0 auto clamp(20px,3vw,36px);transition:color .4s;
+        }
+        .stats{display:flex;justify-content:center;gap:clamp(16px,4vw,40px);flex-wrap:wrap;}
+        .stat{text-align:center;}
+        .stat-num{
+            font-family:'Space Grotesk',sans-serif;
+            font-size:clamp(18px,3vw,28px);font-weight:700;color:var(--text);line-height:1.2;
+            transition:color .4s;
+        }
+        .stat-num em{font-style:normal;color:var(--green);}
+        .stat-lbl{font-size:clamp(10px,1.2vw,12px);color:var(--text-m);margin-top:2px;transition:color .4s;}
+
+        /* ============ FILTERS ============ */
+        .filters{max-width:1320px;margin:0 auto clamp(16px,2.5vw,28px);padding:0 clamp(12px,3vw,28px);position:relative;z-index:2;}
+        .filter-bar{display:flex;align-items:center;gap:clamp(8px,1.2vw,12px);flex-wrap:wrap;}
+        .search-wrap{position:relative;flex:1;min-width:0;max-width:100%;}
+        .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-m);font-size:12px;}
+        .search-wrap input{
+            width:100%;padding:clamp(8px,1.2vw,10px) clamp(8px,1.2vw,14px) clamp(8px,1.2vw,10px) clamp(30px,3vw,38px);
+            background:var(--bg-input);border:1px solid var(--border);border-radius:10px;
+            color:var(--text);font-family:'DM Sans',sans-serif;font-size:clamp(12px,1.3vw,13.5px);
+            outline:none;transition:all .2s;backdrop-filter:blur(10px);
+        }
+        .search-wrap input::placeholder{color:var(--text-m);}
+        .search-wrap input:focus{border-color:var(--border-h);box-shadow:0 0 0 3px rgba(34,197,94,0.08);}
+        .pills{display:flex;gap:4px;flex-wrap:wrap;}
+        .pill{
+            padding:clamp(5px,0.8vw,7px) clamp(8px,1.2vw,14px);border-radius:8px;
+            font-size:clamp(11px,1.2vw,12.5px);font-family:'DM Sans',sans-serif;
+            border:1px solid var(--border);background:transparent;color:var(--text-s);
+            cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;
+        }
+        .pill:hover{border-color:var(--border-h);color:var(--text);}
+        .pill.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:500;}
+        .region-sel{
+            padding:clamp(8px,1.2vw,10px) clamp(26px,3vw,32px) clamp(8px,1.2vw,10px) clamp(10px,1.2vw,12px);
+            background:var(--bg-input);border:1px solid var(--border);border-radius:10px;
+            color:var(--text-s);font-family:'DM Sans',sans-serif;font-size:clamp(12px,1.3vw,13px);
+            outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2322C55E' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;background-position:right 10px center;transition:all .2s;
+        }
+        .region-sel:focus{border-color:var(--border-h);}
+        .region-sel option{background:var(--select-bg);color:var(--text);}
+
+        /* ============ GRID ============ */
+        .grid-wrap{max-width:1320px;margin:0 auto;padding:0 clamp(12px,3vw,28px) clamp(40px,6vw,80px);position:relative;z-index:1;}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:clamp(12px,1.5vw,20px);}
+        .grid-empty{text-align:center;padding:clamp(40px,6vw,80px) 20px;color:var(--text-m);grid-column:1/-1;}
+        .grid-empty i{font-size:36px;margin-bottom:14px;display:block;opacity:.3;}
+
+        /* ============ CARD ============ */
+        .card{
+            background:var(--bg-card);border:1px solid var(--border);border-radius:clamp(10px,1.2vw,14px);
+            overflow:hidden;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+            transition:all .35s;animation:cardIn .5s ease both;
+        }
+        .card:hover{background:var(--bg-card-h);border-color:var(--border-h);transform:translateY(-3px);box-shadow:0 10px 32px var(--shadow);}
+        @keyframes cardIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+        .card-img{position:relative;height:clamp(120px,18vw,180px);overflow:hidden;}
+        .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s;display:block;}
+        .card:hover .card-img img{transform:scale(1.05);}
+        .card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--grad-img) 0%,transparent 60%);}
+        .card-badges{position:absolute;top:clamp(6px,1vw,10px);left:clamp(6px,1vw,10px);right:clamp(6px,1vw,10px);display:flex;gap:4px;flex-wrap:wrap;z-index:2;}
+        .badge{padding:3px clamp(6px,0.8vw,10px);border-radius:5px;font-size:clamp(9px,1vw,10.5px);font-weight:600;letter-spacing:.2px;display:inline-flex;align-items:center;gap:3px;backdrop-filter:blur(8px);}
+        .badge-season{background:rgba(245,158,11,0.2);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+        .badge-organic{background:rgba(34,197,94,0.2);color:var(--green-l);border:1px solid rgba(34,197,94,0.25);}
+        .badge-region{background:rgba(128,128,128,0.15);color:var(--text);border:1px solid rgba(128,128,128,0.2);margin-left:auto;}
+        .card-body{padding:clamp(12px,1.5vw,16px) clamp(12px,1.5vw,18px) clamp(12px,1.5vw,18px);}
+        .card-produce{font-family:'Space Grotesk',sans-serif;font-size:clamp(14px,1.5vw,17px);font-weight:600;margin-bottom:4px;line-height:1.3;}
+        .card-farmer{font-size:clamp(11px,1.2vw,12.5px);color:var(--green);cursor:pointer;transition:color .2s;display:inline-flex;align-items:center;gap:4px;margin-bottom:clamp(8px,1vw,12px);}
+        .card-farmer:hover{color:var(--text);text-decoration:underline;}
+        .card-farmer i{font-size:9px;opacity:.6;}
+        .card-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(8px,1vw,14px);}
+        .card-price{font-family:'Space Grotesk',sans-serif;font-size:clamp(16px,2vw,20px);font-weight:700;color:var(--text);}
+        .card-stock{font-size:clamp(10px,1.1vw,11.5px);color:var(--text-m);display:flex;align-items:center;gap:4px;}
+        .stock-bar{width:clamp(40px,5vw,60px);height:4px;background:rgba(34,197,94,0.12);border-radius:2px;overflow:hidden;flex-shrink:0;}
+        .stock-fill{height:100%;border-radius:2px;transition:width .5s;}
+        .card-method{font-size:clamp(10px,1vw,11px);color:var(--text-m);margin-bottom:clamp(10px,1.2vw,14px);display:flex;align-items:center;gap:5px;}
+        .card-method i{color:var(--green);font-size:9px;}
+        .card-actions{display:flex;gap:clamp(5px,0.8vw,8px);}
+        .btn-buy,.btn-trade{
+            flex:1;padding:clamp(7px,1vw,9px) clamp(6px,0.8vw,10px);border-radius:9px;
+            font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.1vw,12.5px);font-weight:600;
+            cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;border:none;
+        }
+        .btn-buy{background:var(--green);color:#fff;}
+        .btn-buy:hover{background:var(--green-l);box-shadow:0 4px 16px rgba(34,197,94,0.3);}
+        .btn-buy.done{background:var(--green-deep);pointer-events:none;}
+        .btn-trade{background:transparent;color:var(--green);border:1px solid var(--border-h);}
+        .btn-trade:hover{background:rgba(34,197,94,0.08);border-color:var(--green);}
+
+        /* ============ MODAL ============ */
+        .modal-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:center;justify-content:center;padding:clamp(10px,2vw,20px);opacity:0;visibility:hidden;transition:all .3s;}
+        .modal-overlay.show{opacity:1;visibility:visible;}
+        .modal{
+            background:var(--bg-modal);border:1px solid var(--border-h);border-radius:clamp(12px,1.5vw,18px);
+            width:100%;max-width:520px;max-height:min(85vh,700px);overflow-y:auto;
+            transform:translateY(16px) scale(.97);transition:transform .35s,background .4s;
+            box-shadow:0 20px 56px var(--shadow);
+        }
+        .modal-overlay.show .modal{transform:translateY(0) scale(1);}
+        .modal::-webkit-scrollbar{width:4px;}
+        .modal::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px;}
+        .modal-head{padding:clamp(14px,1.8vw,20px) clamp(14px,1.8vw,22px) clamp(12px,1.2vw,16px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+        .modal-head h3{font-size:clamp(15px,1.5vw,17px);font-weight:600;}
+        .modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text-m);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;flex-shrink:0;}
+        .modal-close:hover{background:rgba(239,68,68,0.1);color:var(--red);border-color:rgba(239,68,68,0.3);}
+        .modal-body{padding:clamp(14px,1.8vw,22px);}
+
+        .profile-banner{height:clamp(70px,12vw,100px);border-radius:10px;overflow:hidden;margin-bottom:-26px;position:relative;}
+        .profile-banner img{width:100%;height:100%;object-fit:cover;display:block;}
+        .profile-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg-modal),transparent);}
+        .profile-info{position:relative;padding:0 4px;margin-bottom:16px;}
+        .profile-av{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),#059669);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;border:3px solid var(--bg-modal);box-shadow:0 4px 12px var(--shadow);}
+        .profile-name{font-family:'Space Grotesk',sans-serif;font-size:clamp(15px,1.5vw,18px);font-weight:600;margin-top:6px;}
+        .profile-loc{font-size:clamp(11px,1.2vw,12.5px);color:var(--text-m);display:flex;align-items:center;gap:4px;margin-top:2px;}
+        .profile-loc i{color:var(--green);font-size:10px;}
+        .profile-stats{display:flex;gap:clamp(10px,2vw,16px);margin-top:12px;padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+        .profile-stat-val{font-family:'Space Grotesk',sans-serif;font-size:clamp(14px,1.3vw,16px);font-weight:600;color:var(--text);}
+        .profile-stat-lbl{font-size:clamp(10px,1vw,11px);color:var(--text-m);}
+        .profile-section{margin-top:14px;}
+        .profile-section h4{font-size:clamp(10px,1vw,12px);color:var(--text-m);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
+        .profile-method{display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(34,197,94,0.06);border-radius:8px;font-size:clamp(12px,1.2vw,13px);color:var(--text-s);}
+        .profile-method i{color:var(--green);font-size:11px;}
+        .inv-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;transition:background .2s;margin-bottom:3px;cursor:pointer;}
+        .inv-item:hover{background:rgba(34,197,94,0.06);}
+        .inv-img{width:40px;height:40px;border-radius:7px;object-fit:cover;flex-shrink:0;}
+        .inv-name{font-size:clamp(12px,1.2vw,13px);font-weight:500;}
+        .inv-price{font-size:clamp(10px,1vw,11.5px);color:var(--text-m);}
+
+        .trade-target{padding:clamp(10px,1.2vw,14px);background:rgba(34,197,94,0.06);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;}
+        .trade-target-label{font-size:10px;color:var(--text-m);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-weight:600;}
+        .trade-target-name{font-family:'Space Grotesk',sans-serif;font-size:clamp(13px,1.4vw,15px);font-weight:600;}
+        .trade-target-from{font-size:clamp(11px,1.1vw,12px);color:var(--text-s);margin-top:2px;}
+        .form-group{margin-bottom:14px;}
+        .form-group label{display:block;font-size:clamp(11px,1.1vw,12px);color:var(--text-s);margin-bottom:5px;font-weight:500;}
+        .form-group select,.form-group input,.form-group textarea{
+            width:100%;padding:clamp(8px,1vw,10px) clamp(10px,1vw,12px);
+            background:var(--bg-input);border:1px solid var(--border);border-radius:9px;
+            color:var(--text);font-family:'DM Sans',sans-serif;font-size:clamp(12px,1.2vw,13px);
+            outline:none;transition:all .2s;
+        }
+        .form-group select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2322C55E' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;}
+        .form-group select option{background:var(--select-bg);color:var(--text);}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--border-h);box-shadow:0 0 0 3px rgba(34,197,94,0.08);}
+        .form-group textarea{resize:vertical;min-height:60px;}
+        .form-row{display:flex;gap:clamp(8px,1vw,12px);}
+        .form-row .form-group{flex:1;min-width:0;}
+        .modal-foot{padding:0 clamp(14px,1.8vw,22px) clamp(14px,1.8vw,22px);display:flex;gap:8px;justify-content:flex-end;}
+        .btn-cancel{padding:clamp(7px,1vw,9px) clamp(14px,1.5vw,20px);border-radius:9px;border:1px solid var(--border);background:none;color:var(--text-s);font-family:'DM Sans',sans-serif;font-size:clamp(12px,1.2vw,13px);cursor:pointer;transition:all .2s;}
+        .btn-cancel:hover{border-color:var(--border-h);color:var(--text);}
+        .btn-submit{padding:clamp(7px,1vw,9px) clamp(14px,1.5vw,22px);border-radius:9px;border:none;background:var(--green);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:clamp(12px,1.2vw,13px);font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:5px;}
+        .btn-submit:hover{background:var(--green-l);box-shadow:0 4px 16px rgba(34,197,94,0.3);}
+
+        .modal-lg{max-width:560px;}
+        .form-check{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:clamp(12px,1.2vw,13px);color:var(--text-s);}
+        .form-check input[type=checkbox]{width:15px;height:15px;accent-color:var(--green);cursor:pointer;}
+
+        .my-av{width:56px;height:56px;border-radius:14px;overflow:hidden;margin-bottom:10px;}
+        .my-av img{width:100%;height:100%;object-fit:cover;}
+        .my-rating{display:flex;align-items:center;gap:3px;color:var(--amber);font-size:clamp(12px,1.2vw,13px);margin-top:3px;}
+        .my-item-row{display:flex;align-items:center;justify-content:space-between;padding:clamp(8px,1vw,10px) clamp(8px,1vw,12px);background:var(--bg-card);border:1px solid var(--border);border-radius:9px;margin-bottom:5px;transition:background .4s,border-color .4s;}
+        .my-item-row-left{display:flex;align-items:center;gap:8px;min-width:0;}
+        .my-item-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+
+        /* ============ TOAST ============ */
+        .toast{
+            position:fixed;bottom:clamp(14px,3vw,28px);left:50%;
+            transform:translateX(-50%) translateY(14px);
+            background:var(--green-deep);color:var(--text);
+            padding:clamp(8px,1.2vw,12px) clamp(14px,2vw,22px);border-radius:10px;
+            font-size:clamp(11px,1.2vw,13px);display:flex;align-items:center;gap:7px;
+            opacity:0;visibility:hidden;transition:all .3s;z-index:300;
+            border:1px solid var(--border-h);box-shadow:0 6px 24px var(--shadow);
+            white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
+        }
+        .toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+        .toast i{color:var(--green);flex-shrink:0;}
+
+        /* ============ FOOTER ============ */
+        footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:clamp(24px,3vw,40px) clamp(12px,3vw,28px);text-align:center;transition:border-color .4s;}
+        footer p{font-size:clamp(11px,1.2vw,13px);color:var(--text-m);transition:color .4s;}
+        footer a{color:var(--green);text-decoration:none;}
+        footer a:hover{text-decoration:underline;}
+
+        /* ============ RESPONSIVE ============ */
+        @media(max-width:768px){
+            .desk-nav,.desk-list-btn{display:none !important;}
+            .hamburger{display:flex !important;}
+            .filter-bar{flex-direction:column;align-items:stretch;}
+            .pills{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+            .pills::-webkit-scrollbar{display:none;}
+            .region-sel{width:100%;}
+            .form-row{flex-direction:column;gap:0;}
+            .modal{max-height:min(90vh,600px);margin:8px;border-radius:14px;}
+            .modal-body{padding:14px;}
+            .modal-head{padding:14px;}
+            .modal-foot.stacked{flex-direction:column-reverse;}
+            .modal-foot.stacked .btn-cancel,
+            .modal-foot.stacked .btn-submit{width:100%;justify-content:center;}
+            .modal-lg{max-width:100%;}
+        }
+        @media(max-width:400px){
+            .badge-region{display:none;}
+            .card-actions{flex-direction:column;gap:5px;}
+            .btn-buy,.btn-trade{width:100%;}
+        }
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Navigation -->
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="nav-brand" onclick="event.preventDefault()">
+            <div class="nav-logo"><i class="fas fa-seedling"></i></div>
+            <span>yield<em>X</em></span>
+        </a>
+
+        <!-- Desktop nav -->
+        <div class="desk-nav">
+            <a class="nav-link active" onclick="scrollToGrid()"><i class="fas fa-compass"></i> Explore Marketplace</a>
+            <div class="nav-dd">
+                <a class="nav-link"><i class="fas fa-globe"></i> Global Regions <i class="fas fa-chevron-down" style="font-size:8px;margin-left:2px;opacity:.5;"></i></a>
+                <div class="nav-dd-menu">
+                    <div class="dd-item" onclick="filterRegion('all')"><i class="fas fa-globe"></i> All Regions</div>
+                    <div class="dd-item" onclick="filterRegion('Middle East')"><i class="fas fa-sun"></i> Middle East</div>
+                    <div class="dd-item" onclick="filterRegion('South Asia')"><i class="fas fa-leaf"></i> South Asia</div>
+                    <div class="dd-item" onclick="filterRegion('East Asia')"><i class="fas fa-mountain"></i> East Asia</div>
+                    <div class="dd-item" onclick="filterRegion('Africa')"><i class="fas fa-tree"></i> Africa</div>
+                    <div class="dd-item" onclick="filterRegion('Europe')"><i class="fas fa-wine-glass"></i> Europe</div>
+                    <div class="dd-item" onclick="filterRegion('Americas')"><i class="fas fa-flag-usa"></i> Americas</div>
+                </div>
+            </div>
+            <a class="nav-link" onclick="openMyProfile()"><i class="fas fa-user-circle"></i> My Profile</a>
+        </div>
+
+        <div class="nav-right">
+            <button class="btn-list desk-list-btn" onclick="openListForm()"><i class="fas fa-plus"></i> List Produce</button>
+            <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+                <i class="fas fa-sun"></i>
+            </button>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+                <i class="fas fa-bars" id="hamburgerIcon"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile menu overlay (dark background behind) -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
+<!-- Mobile menu panel (slides from right) -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mm-head">
+        <div class="mm-head-brand">
+            <div class="nav-logo"><i class="fas fa-seedling"></i></div>
+            <span>yield<em>X</em></span>
+        </div>
+        <button class="mm-close" id="mmCloseBtn" aria-label="Close menu">
+            <i class="fas fa-xmark"></i>
+        </button>
+    </div>
+    <div class="mm-body">
+        <button class="mm-link active" onclick="scrollToGrid();closeMobileMenu()">
+            <i class="fas fa-compass"></i> Explore Marketplace
+        </button>
+
+        <button class="mm-dd-btn" id="mmDdBtn">
+            <span class="mm-dd-btn-left"><i class="fas fa-globe"></i> Global Regions</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="mm-dd-items" id="mmDdItems">
+            <div class="mm-dd-item" onclick="filterRegion('all');closeMobileMenu()"><i class="fas fa-globe"></i> All Regions</div>
+            <div class="mm-dd-item" onclick="filterRegion('Middle East');closeMobileMenu()"><i class="fas fa-sun"></i> Middle East</div>
+            <div class="mm-dd-item" onclick="filterRegion('South Asia');closeMobileMenu()"><i class="fas fa-leaf"></i> South Asia</div>
+            <div class="mm-dd-item" onclick="filterRegion('East Asia');closeMobileMenu()"><i class="fas fa-mountain"></i> East Asia</div>
+            <div class="mm-dd-item" onclick="filterRegion('Africa');closeMobileMenu()"><i class="fas fa-tree"></i> Africa</div>
+            <div class="mm-dd-item" onclick="filterRegion('Europe');closeMobileMenu()"><i class="fas fa-wine-glass"></i> Europe</div>
+            <div class="mm-dd-item" onclick="filterRegion('Americas');closeMobileMenu()"><i class="fas fa-flag-usa"></i> Americas</div>
+        </div>
+
+        <button class="mm-link" onclick="openMyProfile();closeMobileMenu()">
+            <i class="fas fa-user-circle"></i> My Profile
+        </button>
+    </div>
+    <div class="mm-foot">
+        <button class="btn-list" onclick="openListForm();closeMobileMenu()">
+            <i class="fas fa-plus"></i> List Produce
+        </button>
+    </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-bolt"></i> Peer-to-Peer Global Farm Trade</div>
+        <h1>The Future of<br><span>Global Farm Trade</span></h1>
+        <p>Connect directly with farmers worldwide. Buy fresh produce, propose cross-border trades, and list your harvest — no middlemen, no complexity.</p>
+        <div class="stats">
+            <div class="stat"><div class="stat-num" data-target="12400">0</div><div class="stat-lbl">Active Farmers</div></div>
+            <div class="stat"><div class="stat-num" data-target="48">0</div><div class="stat-lbl">Countries</div></div>
+            <div class="stat"><div class="stat-num" data-target="2400">0</div><div class="stat-lbl">kg Traded Monthly</div></div>
+            <div class="stat"><div class="stat-num" data-target="98">0</div><div class="stat-lbl">% Satisfaction</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters -->
+<section class="filters" id="filterSection">
+    <div class="filter-bar">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search produce, farmers, regions..." oninput="handleSearch()">
+        </div>
+        <div class="pills" id="categoryPills">
+            <button class="pill on" data-cat="all" onclick="filterCat('all')">All</button>
+            <button class="pill" data-cat="fruits" onclick="filterCat('fruits')">Fruits</button>
+            <button class="pill" data-cat="beverages" onclick="filterCat('beverages')">Beverages</button>
+            <button class="pill" data-cat="grains" onclick="filterCat('grains')">Grains</button>
+            <button class="pill" data-cat="herbs" onclick="filterCat('herbs')">Herbs</button>
+            <button class="pill" data-cat="oils" onclick="filterCat('oils')">Oils</button>
+            <button class="pill" data-cat="vegetables" onclick="filterCat('vegetables')">Vegetables</button>
+        </div>
+        <select class="region-sel" id="regionSelect" onchange="filterRegion(this.value)">
+            <option value="all">All Regions</option>
+            <option value="Middle East">Middle East</option>
+            <option value="South Asia">South Asia</option>
+            <option value="East Asia">East Asia</option>
+            <option value="Africa">Africa</option>
+            <option value="Europe">Europe</option>
+            <option value="Americas">Americas</option>
+        </select>
+    </div>
+</section>
+
+<!-- Grid -->
+<section class="grid-wrap" id="gridSection">
+    <div class="grid" id="grid"></div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>yieldX &mdash; Built for farmers, by farmers. <a href="#">Learn more</a></p>
+</footer>
+
+<!-- Farmer Profile Modal -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal">
+        <div class="modal-head"><h3>Farmer Profile</h3><button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body" id="profileContent"></div>
+    </div>
+</div>
+
+<!-- Trade Modal -->
+<div class="modal-overlay" id="tradeModal">
+    <div class="modal">
+        <div class="modal-head"><h3>Propose a Trade</h3><button class="modal-close" onclick="closeModal('tradeModal')"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body" id="tradeContent"></div>
+    </div>
+</div>
+
+<!-- List Produce Modal -->
+<div class="modal-overlay" id="listModal">
+    <div class="modal modal-lg">
+        <div class="modal-head"><h3>List New Produce</h3><button class="modal-close" onclick="closeModal('listModal')"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body">
+            <form id="listForm" onsubmit="handleListSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group"><label>Produce Name</label><input type="text" id="lf_produce" required placeholder="e.g. Organic Saffron"></div>
+                    <div class="form-group"><label>Farmer Name</label><input type="text" id="lf_farmer" required placeholder="e.g. Ali Rezaei"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Country</label><input type="text" id="lf_country" required placeholder="e.g. Iran"></div>
+                    <div class="form-group"><label>Region / City</label><input type="text" id="lf_region" required placeholder="e.g. Khorasan"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="lf_category" required>
+                            <option value="">Select category</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="grains">Grains & Cereals</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="herbs">Herbs & Spices</option>
+                            <option value="oils">Oils & Extracts</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Price (e.g. $25/kg)</label><input type="text" id="lf_price" required placeholder="$25/kg"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Stock Quantity (kg)</label><input type="number" id="lf_stock" required min="1" placeholder="500"></div>
+                    <div class="form-group">
+                        <label>Season</label>
+                        <select id="lf_season" required>
+                            <option value="">Select season</option>
+                            <option value="Summer Harvest">Summer Harvest</option>
+                            <option value="Winter Harvest">Winter Harvest</option>
+                            <option value="Spring Harvest">Spring Harvest</option>
+                            <option value="Autumn Harvest">Autumn Harvest</option>
+                            <option value="Year-Round">Year-Round</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Farming Method</label><input type="text" id="lf_method" required placeholder="e.g. Traditional Dry Farming"></div>
+                <div class="form-group"><label class="form-check"><input type="checkbox" id="lf_organic"> Certified Organic</label></div>
+                <div class="modal-foot stacked" style="padding:14px 0 0;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('listModal')">Cancel</button>
+                    <button type="submit" class="btn-submit"><i class="fas fa-plus"></i> List Produce</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- My Profile Modal -->
+<div class="modal-overlay" id="myProfileModal">
+    <div class="modal">
+        <div class="modal-head"><h3>My Profile</h3><button class="modal-close" onclick="closeModal('myProfileModal')"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body" id="myProfileContent"></div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastTxt"></span></div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const seasonIcons = {'Summer Harvest':'fa-sun','Winter Harvest':'fa-snowflake','Spring Harvest':'fa-cloud-sun','Autumn Harvest':'fa-leaf','Year-Round':'fa-infinity','Peak Summer Harvest':'fa-sun'};
+const regionMap = {'UAE':'Middle East','India':'South Asia','Japan':'East Asia','Brazil':'Americas','China':'East Asia','Ghana':'Africa','Italy':'Europe','USA':'Americas','Iran':'Middle East','Morocco':'Africa','Mexico':'Americas','New Zealand':'Oceania','Pakistan':'South Asia','Kenya':'Africa','Colombia':'Americas','Ethiopia':'Africa','Thailand':'East Asia','Spain':'Europe','Turkey':'Middle East'};
+function getRegion(c){ return regionMap[c]||'Other'; }
+
+let listings = [
+    {id:1,produce:'Khlas & Barhi Dates',farmer:'Rashid Al-Ketbi',region:'Liwa Oasis',country:'UAE',price:'$18.50/kg',stock:2500,maxStock:5000,season:'Peak Summer Harvest',category:'fruits',method:'Traditional Palm Cultivation',organic:false,image:'https://picsum.photos/seed/datesx7/400/300',trades:34,rating:4.9,memberSince:2021},
+    {id:2,produce:'Alphonso Mangoes',farmer:'Rajesh Kumar',region:'Ratnagiri',country:'India',price:'$22.00/kg',stock:1800,maxStock:3000,season:'Summer Harvest',category:'fruits',method:'Organic Orchard Management',organic:true,image:'https://picsum.photos/seed/mangox3/400/300',trades:56,rating:4.8,memberSince:2020},
+    {id:3,produce:'Greenhouse Figs & Fresh Herbs',farmer:'Fatima Al-Suwaidi',region:'Ras Al Khaimah',country:'UAE',price:'$14.00/kg',stock:600,maxStock:1200,season:'Year-Round',category:'fruits',method:'Hydroponic Greenhouse',organic:true,image:'https://picsum.photos/seed/figsherb9/400/300',trades:18,rating:4.7,memberSince:2022},
+    {id:4,produce:'Ceremonial Matcha',farmer:'Kenji Tanaka',region:'Uji, Kyoto',country:'Japan',price:'$85.00/100g',stock:120,maxStock:300,season:'Spring Harvest',category:'beverages',method:'Shade-Grown Traditional',organic:true,image:'https://picsum.photos/seed/matchax8/400/300',trades:89,rating:5.0,memberSince:2019},
+    {id:5,produce:'Specialty Coffee Beans',farmer:'Maria Santos',region:'Mogiana, São Paulo',country:'Brazil',price:'$28.00/kg',stock:3200,maxStock:8000,season:'Autumn Harvest',category:'beverages',method:'Natural Dry Process',organic:false,image:'https://picsum.photos/seed/coffeex5/400/300',trades:112,rating:4.8,memberSince:2018},
+    {id:6,produce:"Premium Pu'er Tea Cakes",farmer:'Chen Wei',region:'Yunnan',country:'China',price:'$45.00/357g cake',stock:400,maxStock:800,season:'Spring Harvest',category:'beverages',method:'Ancient Tree Fermentation',organic:false,image:'https://picsum.photos/seed/puerx2/400/300',trades:67,rating:4.9,memberSince:2020},
+    {id:7,produce:'Raw Cocoa Beans',farmer:'Amina Osei',region:'Ashanti Region',country:'Ghana',price:'$6.50/kg',stock:8500,maxStock:15000,season:'Autumn Harvest',category:'fruits',method:'Smallholder Shade-Grown',organic:true,image:'https://picsum.photos/seed/cocoax1/400/300',trades:201,rating:4.6,memberSince:2017},
+    {id:8,produce:'Extra Virgin Olive Oil',farmer:'Luca Rossi',region:'Tuscany',country:'Italy',price:'$32.00/L',stock:900,maxStock:2000,season:'Autumn Harvest',category:'oils',method:'Cold-Press Traditional',organic:true,image:'https://picsum.photos/seed/olivex4/400/300',trades:78,rating:4.9,memberSince:2019},
+    {id:9,produce:'Hass Avocados',farmer:'Sarah Johnson',region:'San Diego, California',country:'USA',price:'$4.20/kg',stock:4200,maxStock:10000,season:'Year-Round',category:'fruits',method:'Sustainable Grove Management',organic:false,image:'https://picsum.photos/seed/avocadox6/400/300',trades:145,rating:4.7,memberSince:2021},
+    {id:10,produce:'Organic Saffron Threads',farmer:'Hassan Amiri',region:'Khorasan',country:'Iran',price:'$120.00/10g',stock:15,maxStock:50,season:'Autumn Harvest',category:'herbs',method:'Traditional Hand-Harvested',organic:true,image:'https://picsum.photos/seed/saffronx11/400/300',trades:310,rating:5.0,memberSince:2016},
+    {id:11,produce:'Jasmine Rice',farmer:'Somchai Preecha',region:'Isan',country:'Thailand',price:'$3.80/kg',stock:12000,maxStock:20000,season:'Autumn Harvest',category:'grains',method:'Wetland Paddy Cultivation',organic:false,image:'https://picsum.photos/seed/jasminerice3/400/300',trades:420,rating:4.7,memberSince:2015},
+    {id:12,produce:'Argan Oil',farmer:'Aicha Benali',region:'Souss-Massa',country:'Morocco',price:'$55.00/250ml',stock:200,maxStock:500,season:'Year-Round',category:'oils',method:'Hand-Pressed Traditional',organic:true,image:'https://picsum.photos/seed/arganoil7/400/300',trades:95,rating:4.8,memberSince:2019}
+];
+
+const myInventory = [
+    {id:'my1',produce:'Organic Saffron Threads',region:'Khorasan',country:'Iran',qty:5,unit:'kg'},
+    {id:'my2',produce:'Premium Basmati Rice',region:'Punjab',country:'Pakistan',qty:500,unit:'kg'},
+    {id:'my3',produce:'Raw Manuka Honey',region:'Waikato',country:'New Zealand',qty:50,unit:'kg'}
+];
+const myProfile = {name:'Alex Greenfield',location:'California, USA',role:'Organic Farmer & Trader',since:2023,trades:24,rating:4.9,items:3};
+
+let activeCat='all',activeRegion='all',searchQ='',nextId=100;
+
+/* =========================================================
+   THEME
+   ========================================================= */
+(function(){
+    const s=localStorage.getItem('yieldX-theme');
+    if(s) document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)
+        document.documentElement.setAttribute('data-theme','light');
+})();
+document.getElementById('themeToggle').addEventListener('click',function(){
+    const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('yieldX-theme',n);
+});
+
+/* =========================================================
+   MOBILE MENU — completely separate from desktop nav
+   ========================================================= */
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileOverlay = document.getElementById('mobileOverlay');
+const hamburgerIcon = document.getElementById('hamburgerIcon');
+
+function openMobileMenu(){
+    mobileMenu.classList.add('open');
+    mobileOverlay.classList.add('open');
+    hamburgerIcon.className = 'fas fa-xmark';
+    document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu(){
+    mobileMenu.classList.remove('open');
+    mobileOverlay.classList.remove('open');
+    hamburgerIcon.className = 'fas fa-bars';
+    document.body.style.overflow = '';
+}
+
+document.getElementById('hamburgerBtn').addEventListener('click', function(){
+    if(mobileMenu.classList.contains('open')) closeMobileMenu();
+    else openMobileMenu();
+});
+document.getElementById('mmCloseBtn').addEventListener('click', closeMobileMenu);
+mobileOverlay.addEventListener('click', closeMobileMenu);
+
+/* Mobile dropdown toggle */
+document.getElementById('mmDdBtn').addEventListener('click', function(){
+    this.classList.toggle('open');
+    document.getElementById('mmDdItems').classList.toggle('open');
+});
+
+/* Close mobile menu on Escape */
+document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && mobileMenu.classList.contains('open')) closeMobileMenu();
+});
+
+/* =========================================================
+   RENDER GRID
+   ========================================================= */
+function renderGrid(){
+    const g=document.getElementById('grid');
+    const f=listings.filter(l=>{
+        if(activeCat!=='all'&&l.category!==activeCat) return false;
+        if(activeRegion!=='all'&&getRegion(l.country)!==activeRegion) return false;
+        if(searchQ){const q=searchQ.toLowerCase();return l.produce.toLowerCase().includes(q)||l.farmer.toLowerCase().includes(q)||l.region.toLowerCase().includes(q)||l.country.toLowerCase().includes(q);}
+        return true;
+    });
+    if(!f.length){g.innerHTML='<div class="grid-empty"><i class="fas fa-leaf"></i>No listings match your filters.</div>';return;}
+    g.innerHTML=f.map((l,i)=>{
+        const pct=Math.round((l.stock/l.maxStock)*100);
+        const sc=pct>50?'var(--green)':pct>20?'var(--amber)':'var(--red)';
+        const si=seasonIcons[l.season]||'fa-calendar';
+        return `<div class="card" style="animation-delay:${i*0.05}s">
+            <div class="card-img"><img src="${l.image}" alt="${l.produce}" loading="lazy">
+                <div class="card-badges">
+                    <span class="badge badge-season"><i class="fas ${si}"></i> ${l.season}</span>
+                    ${l.organic?'<span class="badge badge-organic"><i class="fas fa-leaf"></i> Organic</span>':''}
+                    <span class="badge badge-region"><i class="fas fa-location-dot" style="font-size:8px;margin-right:2px;"></i>${l.region}, ${l.country}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="card-produce">${l.produce}</div>
+                <div class="card-farmer" data-action="profile" data-id="${l.id}"><i class="fas fa-user"></i> ${l.farmer} <i class="fas fa-arrow-up-right-from-square"></i></div>
+                <div class="card-meta">
+                    <div class="card-price">${l.price}</div>
+                    <div class="card-stock"><span>${l.stock.toLocaleString()} kg</span><div class="stock-bar"><div class="stock-fill" style="width:${pct}%;background:${sc};"></div></div></div>
+                </div>
+                <div class="card-method"><i class="fas fa-tractor"></i> ${l.method}</div>
+                <div class="card-actions">
+                    <button class="btn-buy" data-action="buy" data-id="${l.id}"><i class="fas fa-cart-shopping"></i> Buy Now</button>
+                    <button class="btn-trade" data-action="trade" data-id="${l.id}"><i class="fas fa-right-left"></i> Propose Trade</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+/* =========================================================
+   EVENT DELEGATION
+   ========================================================= */
+document.getElementById('grid').addEventListener('click',function(e){
+    const el=e.target.closest('[data-action]');if(!el)return;
+    const id=parseInt(el.dataset.id);
+    if(el.dataset.action==='buy') handleBuy(id,el);
+    else if(el.dataset.action==='trade') openTrade(id);
+    else if(el.dataset.action==='profile') openProfile(id);
+});
+
+function handleBuy(id,btn){
+    if(btn.classList.contains('done'))return;
+    btn.classList.add('done');btn.innerHTML='<i class="fas fa-check"></i> Added';
+    const item=listings.find(l=>l.id===id);
+    if(item) item.stock=Math.max(0,item.stock-1);
+    toast(item.produce+' added to your order');
+    setTimeout(()=>{btn.classList.remove('done');btn.innerHTML='<i class="fas fa-cart-shopping"></i> Buy Now';renderGrid();},2200);
+}
+
+/* =========================================================
+   PROFILE MODAL
+   ========================================================= */
+function openProfile(id){
+    const l=listings.find(x=>x.id===id);if(!l)return;
+    const fl=listings.filter(x=>x.farmer===l.farmer);
+    document.getElementById('profileContent').innerHTML=`
+        <div class="profile-banner"><img src="${l.image}" alt=""></div>
+        <div class="profile-info">
+            <div class="profile-av"><i class="fas fa-user"></i></div>
+            <div class="profile-name">${l.farmer}</div>
+            <div class="profile-loc"><i class="fas fa-location-dot"></i> ${l.region}, ${l.country} — ${getRegion(l.country)}</div>
+            <div class="profile-stats">
+                <div><div class="profile-stat-val">${l.trades||'—'}</div><div class="profile-stat-lbl">Trades</div></div>
+                <div><div class="profile-stat-val">${l.rating||'—'}</div><div class="profile-stat-lbl">Rating</div></div>
+                <div><div class="profile-stat-val">${l.memberSince||'—'}</div><div class="profile-stat-lbl">Since</div></div>
+            </div>
+        </div>
+        <div class="profile-section"><h4>Farming Method</h4><div class="profile-method"><i class="fas fa-seedling"></i> ${l.method}${l.organic?' — Certified Organic':''}</div></div>
+        <div class="profile-section"><h4>Active Listings (${fl.length})</h4>${fl.map(x=>`<div class="inv-item" onclick="closeModal('profileModal')"><img class="inv-img" src="${x.image}" alt="${x.produce}"><div><div class="inv-name">${x.produce}</div><div class="inv-price">${x.price} · ${x.stock.toLocaleString()} kg</div></div></div>`).join('')}</div>`;
+    openModal('profileModal');
+}
+
+/* =========================================================
+   TRADE MODAL
+   ========================================================= */
+function openTrade(id){
+    const l=listings.find(x=>x.id===id);if(!l)return;
+    document.getElementById('tradeContent').innerHTML=`
+        <div class="trade-target">
+            <div class="trade-target-label">You Want to Receive</div>
+            <div class="trade-target-name">${l.produce}</div>
+            <div class="trade-target-from">from ${l.farmer} — ${l.region}, ${l.country}</div>
+        </div>
+        <div class="form-group"><label>What Would You Like to Offer?</label><select id="tradeOffer"><option value="">Select from your inventory...</option>${myInventory.map(m=>`<option value="${m.id}">${m.produce} (${m.qty} ${m.unit}) — ${m.region}, ${m.country}</option>`).join('')}</select></div>
+        <div class="form-group"><label>Quantity to Offer</label><input type="number" id="tradeQty" placeholder="e.g. 10" min="1"></div>
+        <div class="form-group"><label>Message (Optional)</label><textarea id="tradeMsg" placeholder="Add a note to the farmer..."></textarea></div>
+        <div class="modal-foot stacked" style="padding:0;"><button class="btn-cancel" onclick="closeModal('tradeModal')">Cancel</button><button class="btn-submit" onclick="submitTrade(${l.id})"><i class="fas fa-paper-plane"></i> Send Proposal</button></div>`;
+    openModal('tradeModal');
+}
+function submitTrade(tid){
+    const o=document.getElementById('tradeOffer').value,q=document.getElementById('tradeQty').value;
+    if(!o){toast('Please select an item to offer');return;}
+    if(!q||q<=0){toast('Please enter a valid quantity');return;}
+    const it=myInventory.find(m=>m.id===o),tg=listings.find(l=>l.id===tid);
+    closeModal('tradeModal');
+    toast('Trade sent: '+q+'kg of '+it.produce+' for '+tg.produce);
+}
+
+/* =========================================================
+   LIST PRODUCE
+   ========================================================= */
+function handleListSubmit(e){
+    e.preventDefault();
+    const n={id:nextId++,produce:document.getElementById('lf_produce').value.trim(),farmer:document.getElementById('lf_farmer').value.trim(),region:document.getElementById('lf_region').value.trim(),country:document.getElementById('lf_country').value.trim(),price:document.getElementById('lf_price').value.trim(),stock:parseInt(document.getElementById('lf_stock').value),maxStock:parseInt(document.getElementById('lf_stock').value),season:document.getElementById('lf_season').value,category:document.getElementById('lf_category').value,method:document.getElementById('lf_method').value.trim(),organic:document.getElementById('lf_organic').checked,image:'https://picsum.photos/seed/new'+nextId+'/400/300',trades:0,rating:0,memberSince:new Date().getFullYear()};
+    listings.unshift(n);closeModal('listModal');document.getElementById('listForm').reset();renderGrid();scrollToGrid();toast('"'+n.produce+'" listed successfully');
+}
+
+/* =========================================================
+   MY PROFILE
+   ========================================================= */
+function openMyProfile(){
+    document.getElementById('myProfileContent').innerHTML=`
+        <div class="my-av"><img src="https://picsum.photos/seed/myav77/200/200" alt="Profile"></div>
+        <div class="profile-name">${myProfile.name}</div>
+        <div class="profile-loc"><i class="fas fa-location-dot"></i> ${myProfile.location}</div>
+        <div class="my-rating">${'<i class="fas fa-star"></i>'.repeat(Math.floor(myProfile.rating))} ${myProfile.rating} · ${myProfile.role}</div>
+        <div class="profile-stats" style="margin-top:14px;">
+            <div><div class="profile-stat-val">${myProfile.trades}</div><div class="profile-stat-lbl">Trades</div></div>
+            <div><div class="profile-stat-val">${myProfile.items}</div><div class="profile-stat-lbl">Items</div></div>
+            <div><div class="profile-stat-val">${myProfile.since}</div><div class="profile-stat-lbl">Since</div></div>
+        </div>
+        <div class="profile-section"><h4>Your Inventory</h4>${myInventory.map(m=>`<div class="my-item-row"><div class="my-item-row-left"><div class="my-item-dot"></div><div><div style="font-size:13px;font-weight:500;">${m.produce}</div><div style="font-size:11px;color:var(--text-m);">${m.region}, ${m.country}</div></div></div><div style="font-size:12px;color:var(--green);font-weight:600;">${m.qty} ${m.unit}</div></div>`).join('')}</div>`;
+    openModal('myProfileModal');
+}
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+function filterCat(c){activeCat=c;document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p.dataset.cat===c));renderGrid();}
+function filterRegion(r){activeRegion=r;document.getElementById('regionSelect').value=r;renderGrid();scrollToGrid();}
+function handleSearch(){searchQ=document.getElementById('searchInput').value.trim();renderGrid();}
+
+/* =========================================================
+   MODAL HELPERS
+   ========================================================= */
+function openModal(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('show');if(!mobileMenu.classList.contains('open'))document.body.style.overflow='';}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',function(e){if(e.target===this)closeModal(this.id);});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>closeModal(m.id));});
+function scrollToGrid(){document.getElementById('filterSection').scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+let toastTimer=null;
+function toast(m){const t=document.getElementById('toast');document.getElementById('toastTxt').textContent=m;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3200);}
+
+/* =========================================================
+   STAT COUNTER
+   ========================================================= */
+function animateStats(){
+    document.querySelectorAll('.stat-num[data-target]').forEach(el=>{
+        const target=parseInt(el.dataset.target),dur=1600,st=performance.now();
+        (function u(now){const p=Math.min((now-st)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.round(e*target).toLocaleString()+(target===98?'%':'+');if(p<1)requestAnimationFrame(u);})(st);
+    });
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderGrid();
+animateStats();
+</script>
+</body>
+</html>
