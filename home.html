@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yieldX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        [data-theme="light"]{
+            --bg:#fff;--text:#1a1a1a;--text-s:#555;--text-m:#888;
+            --border:#e5e5e5;--border-h:#16a34a;
+            --green:#16a34a;--green-bg:#f0fdf4;--green-hover:rgba(22,163,74,0.08);
+            --card-bg:#fff;--arrow:#ccc;
+            --input-bg:#fff;--chat-bg:#fff;--chat-user:#16a34a;
+            --chat-bot-bg:#f7f7f7;--chat-bot-border:#e5e5e5;
+            --header-border:#eee;--footer-border:#eee;--footer-text:#bbb;
+            --shadow-hover:rgba(22,163,74,0.08);--overlay:rgba(0,0,0,0.25);
+        }
+        [data-theme="dark"]{
+            --bg:#0e0e0e;--text:#e5e5e5;--text-s:#aaa;--text-m:#777;
+            --border:#2a2a2a;--border-h:#22c55e;
+            --green:#22c55e;--green-bg:rgba(34,197,94,0.08);--green-hover:rgba(34,197,94,0.12);
+            --card-bg:#161616;--arrow:#555;
+            --input-bg:#1e1e1e;--chat-bg:#141414;--chat-user:#22c55e;
+            --chat-bot-bg:#1a1a1a;--chat-bot-border:#2a2a2a;
+            --header-border:#222;--footer-border:#222;--footer-text:#555;
+            --shadow-hover:rgba(34,197,94,0.06);--overlay:rgba(0,0,0,0.5);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .3s,color .3s;}
+        header{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--header-border);transition:border-color .3s;}
+        .logo{font-size:18px;font-weight:600;text-decoration:none;color:var(--text);transition:color .3s;}
+        .logo span{color:var(--green);}
+        .header-right{display:flex;align-items:center;gap:24px;}
+        nav{display:flex;gap:28px;}
+        nav a{font-size:14px;color:var(--text-m);text-decoration:none;transition:color .2s;}
+        nav a:hover{color:var(--text);}
+        .theme-toggle{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-m);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0;}
+        .theme-toggle:hover{border-color:var(--border-h);color:var(--green);}
+        .theme-toggle .fa-sun{display:none;}
+        [data-theme="dark"] .theme-toggle .fa-moon{display:none;}
+        [data-theme="dark"] .theme-toggle .fa-sun{display:inline;}
+        main{max-width:680px;margin:0 auto;padding:80px 24px 60px;}
+        h1{font-size:32px;font-weight:600;margin-bottom:20px;line-height:1.3;transition:color .3s;}
+        p.desc{font-size:15px;color:var(--text-s);margin-bottom:48px;max-width:540px;transition:color .3s;}
+        .cards{display:flex;flex-direction:column;gap:12px;}
+        .card{border:1px solid var(--border);border-radius:10px;padding:24px 28px;text-decoration:none;color:inherit;transition:all .2s;display:flex;align-items:flex-start;gap:18px;background:var(--card-bg);}
+        .card:hover{border-color:var(--border-h);box-shadow:0 2px 12px var(--shadow-hover);}
+        .card-icon{width:40px;height:40px;border-radius:8px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background .3s,color .3s;}
+        .card-text h3{font-size:15px;font-weight:600;margin-bottom:4px;transition:color .3s;}
+        .card-text p{font-size:13px;color:var(--text-m);line-height:1.5;transition:color .3s;}
+        .card-arrow{margin-left:auto;color:var(--arrow);font-size:13px;flex-shrink:0;padding-top:2px;transition:color .2s;}
+        .card:hover .card-arrow{color:var(--green);}
+        footer{text-align:center;padding:32px 24px;font-size:12px;color:var(--footer-text);border-top:1px solid var(--footer-border);transition:all .3s;}
+        footer a{color:var(--green);text-decoration:none;}
+
+        /* AI FAB */
+        .ai-fab{position:fixed;bottom:24px;right:24px;z-index:160;width:54px;height:54px;border-radius:15px;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;box-shadow:0 4px 20px rgba(34,197,94,0.3),0 0 0 0 rgba(34,197,94,0.35);transition:all .3s cubic-bezier(.4,0,.2,1);animation:aiPulse 2.5s infinite ease-in-out;}
+        .ai-fab:hover{transform:scale(1.06) translateY(-2px);box-shadow:0 8px 28px rgba(34,197,94,0.4);animation:none;}
+        .ai-fab:active{transform:scale(0.95);}
+        .ai-fab.open{border-radius:13px;background:var(--card-bg);border:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,0.15);animation:none;}
+        .ai-fab.open:hover{background:var(--green-hover);}
+        .ai-fab.open i{color:var(--text-m);}
+        @keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(34,197,94,0.3),0 0 0 0 rgba(34,197,94,0.35);}50%{box-shadow:0 4px 20px rgba(34,197,94,0.3),0 0 0 10px rgba(34,197,94,0);}}
+        .ai-fab-label{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--card-bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;white-space:nowrap;opacity:0;visibility:hidden;transition:all .2s;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+        .ai-fab-label::after{content:'';position:absolute;left:100%;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left-color:var(--border);}
+        .ai-fab:hover .ai-fab-label{opacity:1;visibility:visible;}
+
+        /* AI Chat */
+        .ai-chat{position:fixed;bottom:90px;right:24px;z-index:159;width:min(370px,calc(100vw - 32px));height:min(500px,calc(100vh - 140px));background:var(--chat-bg);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;opacity:0;visibility:hidden;transform:translateY(14px) scale(0.96);transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 16px 48px rgba(0,0,0,0.12);}
+        .ai-chat.open{opacity:1;visibility:visible;transform:translateY(0) scale(1);}
+        .ai-chat-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+        .ai-chat-avatar{width:36px;height:36px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;}
+        .ai-chat-info{flex:1;min-width:0;}
+        .ai-chat-name{font-size:14px;font-weight:600;color:var(--text);}
+        .ai-chat-status{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;margin-top:1px;}
+        .ai-chat-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+        @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+        .ai-chat-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;}
+        .ai-chat-body::-webkit-scrollbar{width:3px;}
+        .ai-chat-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+        .ai-msg{max-width:88%;padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.6;animation:msgIn .3s ease both;}
+        @keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        .ai-msg.bot{background:var(--chat-bot-bg);border:1px solid var(--chat-bot-border);color:var(--text-s);align-self:flex-start;border-bottom-left-radius:4px;}
+        .ai-msg.user{background:var(--chat-user);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+        .ai-msg.bot .ai-msg-title{font-size:11px;font-weight:600;color:var(--green);margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+        .ai-msg.bot .ai-msg-title i{font-size:9px;}
+        .ai-suggestions{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+        .ai-sug-btn{padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-s);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:8px;}
+        .ai-sug-btn:hover{background:var(--green-hover);border-color:var(--green);color:var(--text);}
+        .ai-sug-btn i{color:var(--green);font-size:10px;flex-shrink:0;width:14px;text-align:center;}
+        .ai-typing{display:flex;align-items:center;gap:4px;padding:11px 15px;background:var(--chat-bot-bg);border:1px solid var(--chat-bot-border);border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start;width:56px;}
+        .ai-typing span{width:5px;height:5px;border-radius:50%;background:var(--text-m);animation:dot 1.2s infinite ease-in-out;}
+        .ai-typing span:nth-child(2){animation-delay:.15s;}
+        .ai-typing span:nth-child(3){animation-delay:.3s;}
+        @keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.35;}30%{transform:translateY(-3px);opacity:1;}}
+        .ai-chat-foot{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+        .ai-chat-input{flex:1;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:all .2s;}
+        .ai-chat-input::placeholder{color:var(--text-m);}
+        .ai-chat-input:focus{border-color:var(--border-h);box-shadow:0 0 0 2px rgba(34,197,94,0.08);}
+        .ai-chat-send{width:38px;height:38px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+        .ai-chat-send:hover{opacity:.9;transform:translateY(-1px);}
+        .ai-chat-send:active{transform:scale(.94);}
+
+        @media(max-width:600px){
+            header{padding:16px 20px;}
+            nav{gap:16px;}
+            nav a{font-size:13px;}
+            main{padding:48px 20px 40px;}
+            h1{font-size:24px;}
+            .card{padding:20px;gap:14px;}
+            .ai-fab{bottom:18px;right:18px;width:50px;height:50px;font-size:18px;}
+            .ai-chat{bottom:78px;right:12px;width:calc(100vw - 24px);height:calc(100vh - 110px);}
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="logo" onclick="event.preventDefault()">yield<span>X</span></a>
+    <div class="header-right">
+        <nav>
+            <a href="index.html">Marketplace</a>
+            <a href="front.html">Disease Detection</a>
+            <a href="chatbot.html">AI Assistant</a>
+        </nav>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i><i class="fas fa-sun"></i></button>
+    </div>
+</header>
+
+<main>
+    <h1>Smart tools for<br>modern agriculture.</h1>
+    <p class="desc">
+        yieldX brings together a global farmer marketplace, an AI assistant ready to answer your agricultural questions, and deep learning models that detect crop diseases and recommend the right fertilizers — all in one place.
+    </p>
+    <div class="cards">
+        <a href="index.html" class="card">
+            <div class="card-icon"><i class="fas fa-store"></i></div>
+            <div class="card-text">
+                <h3>Marketplace</h3>
+                <p>Browse, buy, and sell produce directly with farmers across 48 countries. No middlemen.</p>
+            </div>
+            <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+        </a>
+        <a href="chatbot.html" class="card">
+            <div class="card-icon"><i class="fas fa-robot"></i></div>
+            <div class="card-text">
+                <h3>AI Assistant</h3>
+                <p>Ask anything about farming, crops, soils, or seasons. Get instant, accurate answers.</p>
+            </div>
+            <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+        </a>
+        <a href="front.html" class="card">
+            <div class="card-icon"><i class="fas fa-microscope"></i></div>
+            <div class="card-text">
+                <h3>Disease Detection & Recommendations</h3>
+                <p>Upload a leaf photo — our deep learning models identify diseases and suggest fertilizers and crops.</p>
+            </div>
+            <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+        </a>
+    </div>
+</main>
+
+<footer>
+    yieldX &mdash; Built for farmers, by farmers.
+</footer>
+
+<!-- AI FAB -->
+<button class="ai-fab" id="aiFab" aria-label="AI Assistant">
+    <i class="fas fa-robot"></i>
+    <span class="ai-fab-label">AI Assistant</span>
+</button>
+
+<!-- AI Chat -->
+<div class="ai-chat" id="aiChat">
+    <div class="ai-chat-head">
+        <div class="ai-chat-avatar"><i class="fas fa-robot"></i></div>
+        <div class="ai-chat-info">
+            <div class="ai-chat-name">yieldX AI Assistant</div>
+            <div class="ai-chat-status">Online</div>
+        </div>
+    </div>
+    <div class="ai-chat-body" id="aiChatBody"></div>
+    <div class="ai-chat-foot">
+        <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Type your message..." autocomplete="off">
+        <button class="ai-chat-send" id="aiChatSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+/* Theme */
+(function(){
+    var s=localStorage.getItem('yieldX-theme');
+    if(s)document.documentElement.setAttribute('data-theme',s);
+    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)
+        document.documentElement.setAttribute('data-theme','dark');
+})();
+document.getElementById('themeToggle').addEventListener('click',function(){
+    var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('yieldX-theme',n);
+});
+
+/* AI Chat */
+var aiFab=document.getElementById('aiFab'),
+    aiChat=document.getElementById('aiChat'),
+    aiChatBody=document.getElementById('aiChatBody'),
+    aiChatInput=document.getElementById('aiChatInput'),
+    aiChatSend=document.getElementById('aiChatSend'),
+    aiOpen=false,
+    aiInit=false;
+
+var aiResponses=[
+    "I can help you find the best produce from farmers around the world. Try visiting the Marketplace to explore listings by category or region.",
+    "Looking to trade? You can propose a cross-border barter directly with any farmer through the Marketplace. Just click 'Trade' on any listing.",
+    "Our deep learning models can detect crop diseases from a single leaf photo. Head to Disease Detection to try it out.",
+    "Need fertilizer recommendations? Upload a photo of your crop in the Disease Detection section and get personalized suggestions.",
+    "You can search the marketplace by produce name, farmer name, region, or country. The filters make it easy to narrow down results.",
+    "Organic produce is marked with a green badge on each marketplace listing so you can easily find what you're looking for.",
+    "The yieldX platform connects over 12,000 farmers across 48 countries with direct peer-to-peer trading.",
+    "Have questions about planting seasons, soil health, or pest control? Just ask me anything agricultural."
+];
+
+function toggleAI(){
+    aiOpen=!aiOpen;
+    aiChat.classList.toggle('open',aiOpen);
+    aiFab.classList.toggle('open',aiOpen);
+    aiFab.querySelector('i').className=aiOpen?'fas fa-xmark':'fas fa-robot';
+    if(aiOpen){
+        if(!aiInit){initAI();aiInit=true;}
+        setTimeout(function(){aiChatInput.focus();},300);
+    }
+}
+
+function initAI(){
+    aiChatBody.innerHTML=
+        '<div class="ai-msg bot">'+
+            '<div class="ai-msg-title"><i class="fas fa-bolt"></i> yieldX AI Assistant</div>'+
+            'Hello! I\'m your smart AI assistant for yieldX. I\'m here to help you navigate the global agricultural marketplace, answer your farming questions, and guide you through our crop disease detection and fertilizer recommendation tools.<br><br>How can I help you today?'+
+            '<div class="ai-suggestions">'+
+                '<button class="ai-sug-btn" onclick="aiSug(this)"><i class="fas fa-search"></i> How do I find specific produce?</button>'+
+                '<button class="ai-sug-btn" onclick="aiSug(this)"><i class="fas fa-exchange-alt"></i> How does trading work?</button>'+
+                '<button class="ai-sug-btn" onclick="aiSug(this)"><i class="fas fa-microscope"></i> How does disease detection work?</button>'+
+                '<button class="ai-sug-btn" onclick="aiSug(this)"><i class="fas fa-leaf"></i> What fertilizer should I use?</button>'+
+            '</div>'+
+        '</div>';
+}
+
+function aiSug(btn){
+    addUserMsg(btn.textContent.trim());
+    var sug=btn.closest('.ai-suggestions');
+    if(sug)sug.remove();
+    showTyping();
+}
+
+function addUserMsg(t){
+    var d=document.createElement('div');d.className='ai-msg user';d.textContent=t;
+    aiChatBody.appendChild(d);scrollAI();
+}
+
+function addBotMsg(h){
+    var d=document.createElement('div');d.className='ai-msg bot';
+    d.innerHTML='<div class="ai-msg-title"><i class="fas fa-bolt"></i> yieldX AI</div>'+h;
+    aiChatBody.appendChild(d);scrollAI();
+}
+
+function showTyping(){
+    var t=document.createElement('div');t.className='ai-typing';
+    t.innerHTML='<span></span><span></span><span></span>';
+    aiChatBody.appendChild(t);scrollAI();
+    setTimeout(function(){
+        t.remove();
+        addBotMsg(aiResponses[Math.floor(Math.random()*aiResponses.length)]);
+    },1000+Math.random()*800);
+}
+
+function scrollAI(){requestAnimationFrame(function(){aiChatBody.scrollTop=aiChatBody.scrollHeight;});}
+
+function sendMsg(){
+    var t=aiChatInput.value.trim();if(!t)return;
+    addUserMsg(t);aiChatInput.value='';showTyping();
+}
+
+aiFab.addEventListener('click',toggleAI);
+aiChatSend.addEventListener('click',sendMsg);
+aiChatInput.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+});
+document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&aiOpen)toggleAI();
+});
+</script>
+</body>
+</html>

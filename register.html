@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yieldX — Sign In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg:#030B06;--bg-card:rgba(10,38,23,0.35);--bg-card-h:rgba(14,52,32,0.5);
+            --bg-input:rgba(10,38,23,0.45);--border:rgba(34,197,94,0.09);
+            --border-h:rgba(34,197,94,0.28);--border-err:rgba(239,68,68,0.5);
+            --green:#22C55E;--green-l:#4ADE80;--green-d:#15803D;--green-deep:#064E3B;
+            --amber:#F59E0B;--red:#EF4444;--red-s:rgba(239,68,68,0.1);
+            --text:#ECFDF5;--text-s:#86EFAC;--text-m:rgba(134,231,172,0.4);
+            --text-dim:rgba(134,231,172,0.22);--radius:14px;--blur:22px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+        h1,h2,h3,h4,h5{font-family:'Space Grotesk',sans-serif;}
+        ::-webkit-scrollbar{width:6px;}
+        ::-webkit-scrollbar-track{background:transparent;}
+        ::-webkit-scrollbar-thumb{background:var(--green-deep);border-radius:3px;}
+
+        /* ---- BG ---- */
+        .orb{position:fixed;border-radius:50%;filter:blur(110px);opacity:.12;pointer-events:none;z-index:0;}
+        .orb-1{width:550px;height:550px;background:var(--green);top:-220px;left:-180px;animation:orbM 25s infinite ease-in-out;}
+        .orb-2{width:450px;height:450px;background:#0D9488;bottom:-120px;right:-120px;animation:orbM 30s infinite ease-in-out reverse;}
+        .orb-3{width:300px;height:300px;background:var(--amber);top:55%;left:55%;transform:translate(-50%,-50%);animation:orbM 20s infinite ease-in-out 5s;opacity:.05;}
+        @keyframes orbM{0%,100%{transform:translate(0,0);}25%{transform:translate(40px,-30px);}50%{transform:translate(-20px,50px);}75%{transform:translate(30px,20px);}}
+
+        .dot-bg{position:fixed;inset:0;background-image:radial-gradient(rgba(34,197,94,0.04) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0;}
+
+        /* ---- LAYOUT ---- */
+        .page{display:flex;min-height:100vh;position:relative;z-index:1;}
+
+        /* ---- LEFT PANEL ---- */
+        .panel-left{
+            flex:1;display:flex;flex-direction:column;justify-content:center;
+            padding:60px 56px;position:relative;overflow:hidden;
+        }
+        .panel-left::after{
+            content:'';position:absolute;right:0;top:10%;bottom:10%;width:1px;
+            background:linear-gradient(to bottom,transparent,var(--border-h),transparent);
+        }
+        .brand{display:flex;align-items:center;gap:11px;margin-bottom:48px;text-decoration:none;}
+        .brand-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--green),#059669);border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 0 24px rgba(34,197,94,0.25);}
+        .brand-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:23px;color:var(--text);letter-spacing:-.5px;}
+        .brand-name em{font-style:normal;color:var(--green);}
+
+        .hero-text h1{font-size:clamp(28px,3.2vw,44px);font-weight:700;line-height:1.12;margin-bottom:18px;letter-spacing:-1px;}
+        .hero-text h1 span{background:linear-gradient(135deg,var(--green),var(--green-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero-text p{font-size:15.5px;color:var(--text-s);line-height:1.7;max-width:440px;opacity:.8;}
+
+        .features{margin-top:44px;display:flex;flex-direction:column;gap:18px;}
+        .feat{display:flex;align-items:flex-start;gap:14px;}
+        .feat-icon{
+            width:40px;height:40px;border-radius:10px;
+            background:rgba(34,197,94,0.08);border:1px solid var(--border);
+            display:flex;align-items:center;justify-content:center;
+            color:var(--green);font-size:15px;flex-shrink:0;transition:all .3s;
+        }
+        .feat:hover .feat-icon{background:rgba(34,197,94,0.14);border-color:var(--border-h);transform:translateY(-2px);}
+        .feat h4{font-size:13.5px;font-weight:600;margin-bottom:3px;}
+        .feat p{font-size:12.5px;color:var(--text-m);line-height:1.45;}
+
+        .panel-stats{margin-top:48px;display:flex;gap:32px;}
+        .pstat-num{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);}
+        .pstat-num em{font-style:normal;color:var(--green);}
+        .pstat-lbl{font-size:11px;color:var(--text-m);margin-top:2px;}
+
+        /* ---- RIGHT PANEL ---- */
+        .panel-right{
+            width:520px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+            padding:40px 44px;position:relative;
+        }
+
+        /* ---- AUTH CARD ---- */
+        .auth-card{
+            width:100%;max-width:400px;
+            background:var(--bg-card);border:1px solid var(--border);
+            border-radius:20px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+            padding:36px 32px 32px;position:relative;
+            box-shadow:0 16px 48px rgba(0,0,0,0.25);
+        }
+
+        .tab-bar{display:flex;gap:3px;background:rgba(34,197,94,0.06);border-radius:10px;padding:3px;margin-bottom:28px;}
+        .tab{
+            flex:1;padding:9px;text-align:center;border-radius:8px;font-size:13.5px;
+            font-weight:500;color:var(--text-m);cursor:pointer;transition:all .3s;
+            border:none;background:none;font-family:'DM Sans',sans-serif;
+        }
+        .tab.active{background:var(--green-deep);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+
+        .auth-title{font-size:20px;font-weight:600;margin-bottom:6px;}
+        .auth-sub{font-size:13px;color:var(--text-m);margin-bottom:24px;line-height:1.5;}
+
+        /* ---- FORMS ---- */
+        .form-view{display:none;animation:fadeUp .35s ease;}
+        .form-view.active{display:block;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+        .fg{margin-bottom:16px;position:relative;}
+        .fg label{display:block;font-size:12px;color:var(--text-s);margin-bottom:6px;font-weight:500;letter-spacing:.2px;}
+        .fg-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-m);font-size:13px;pointer-events:none;transition:color .2s;}
+        .fg-icon.pw-toggle{pointer-events:all;cursor:pointer;left:auto;right:12px;font-size:14px;}
+        .fg-icon.pw-toggle:hover{color:var(--text-s);}
+        .fi{width:100%;padding:11px 12px 11px 38px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13.5px;outline:none;transition:all .2s;}
+        .fi::placeholder{color:var(--text-dim);}
+        .fi:focus{border-color:var(--border-h);box-shadow:0 0 0 3px rgba(34,197,94,0.08);}
+        .fi:focus ~ .fg-icon:not(.pw-toggle){color:var(--green);}
+        .fi.err{border-color:var(--border-err);box-shadow:0 0 0 3px var(--red-s);}
+        .fi.pw-field{padding-right:42px;}
+        .err-msg{font-size:11px;color:var(--red);margin-top:5px;display:none;align-items:center;gap:4px;}
+        .err-msg.show{display:flex;}
+        .err-msg i{font-size:10px;}
+
+        /* Select styling */
+        .fi-select{appearance:none;-webkit-appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2386EFAC' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;}
+        .fi-select option{background:#0A2618;color:var(--text);}
+
+        /* Password strength */
+        .pw-strength{display:flex;gap:4px;margin-top:8px;}
+        .pw-bar{flex:1;height:3px;border-radius:2px;background:rgba(34,197,94,0.1);transition:all .3s;}
+        .pw-bar.weak{background:var(--red);}
+        .pw-bar.medium{background:var(--amber);}
+        .pw-bar.strong{background:var(--green);}
+        .pw-label{font-size:10.5px;margin-top:5px;color:var(--text-m);transition:color .2s;}
+        .pw-label.weak{color:var(--red);}
+        .pw-label.medium{color:var(--amber);}
+        .pw-label.strong{color:var(--green);}
+
+        /* Checkbox */
+        .check-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px;}
+        .check-label{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12.5px;color:var(--text-s);}
+        .check-label input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;}
+        .forgot{font-size:12px;color:var(--green);text-decoration:none;cursor:pointer;transition:color .2s;}
+        .forgot:hover{color:var(--green-l);text-decoration:underline;}
+
+        /* Terms */
+        .terms{font-size:11.5px;color:var(--text-m);margin-bottom:20px;line-height:1.5;}
+        .terms a{color:var(--green);text-decoration:none;cursor:pointer;}
+        .terms a:hover{text-decoration:underline;}
+
+        /* Submit */
+        .btn-auth{
+            width:100%;padding:12px;border-radius:10px;border:none;
+            background:var(--green);color:#fff;font-family:'Space Grotesk',sans-serif;
+            font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            box-shadow:0 0 24px rgba(34,197,94,0.2);position:relative;overflow:hidden;
+        }
+        .btn-auth:hover{background:var(--green-l);transform:translateY(-1px);box-shadow:0 6px 28px rgba(34,197,94,0.3);}
+        .btn-auth:active{transform:translateY(0);}
+        .btn-auth.loading{pointer-events:none;opacity:.85;}
+        .btn-auth .spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+        .btn-auth.loading .spinner{display:block;}
+        .btn-auth.loading .btn-text{display:none;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        /* Divider */
+        .divider{display:flex;align-items:center;gap:14px;margin:22px 0;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+        .divider span{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+
+        /* Social */
+        .social-row{display:flex;gap:10px;}
+        .btn-social{
+            flex:1;padding:10px;border-radius:10px;
+            border:1px solid var(--border);background:var(--bg-input);
+            color:var(--text-s);font-family:'DM Sans',sans-serif;
+            font-size:12.5px;font-weight:500;cursor:pointer;transition:all .2s;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+        }
+        .btn-social:hover{border-color:var(--border-h);background:var(--bg-card-h);color:var(--text);transform:translateY(-1px);}
+        .btn-social i{font-size:15px;}
+
+        /* ---- TOAST ---- */
+        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--green-deep);color:var(--text);padding:12px 22px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;opacity:0;visibility:hidden;transition:all .3s;z-index:300;border:1px solid var(--border-h);box-shadow:0 8px 28px rgba(0,0,0,0.4);}
+        .toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+        .toast i{color:var(--green);}
+
+        /* ---- FLOATING LEAF PARTICLES ---- */
+        .leaf{position:fixed;pointer-events:none;z-index:0;opacity:0;animation:leafFall linear infinite;color:rgba(34,197,94,0.15);font-size:14px;}
+        @keyframes leafFall{
+            0%{opacity:0;transform:translateY(-20px) rotate(0deg);}
+            10%{opacity:1;}
+            90%{opacity:1;}
+            100%{opacity:0;transform:translateY(100vh) rotate(360deg);}
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media(max-width:1024px){
+            .panel-left{display:none;}
+            .panel-right{width:100%;}
+            .page{justify-content:center;}
+        }
+        @media(max-width:480px){
+            .panel-right{padding:24px 16px;}
+            .auth-card{padding:28px 20px 24px;}
+            .social-row{flex-direction:column;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="dot-bg"></div>
+
+<div class="page">
+    <!-- Left Panel -->
+    <div class="panel-left">
+        <a href="#" class="brand" onclick="event.preventDefault()">
+            <div class="brand-logo"><i class="fas fa-seedling"></i></div>
+            <div class="brand-name">yield<em>X</em></div>
+        </a>
+        <div class="hero-text">
+            <h1>Trade Direct.<br><span>Grow Global.</span></h1>
+            <p>Join 12,400+ farmers across 48 countries who are already trading produce directly — no middlemen, no borders, no limits.</p>
+        </div>
+        <div class="features">
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-globe"></i></div>
+                <div><h4>Cross-Border Trading</h4><p>Swap dates for mangoes, coffee for tea — direct barter with farmers worldwide.</p></div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                <div><h4>Verified Farmers</h4><p>Every profile is verified with region, methods, and trade history transparency.</p></div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                <div><h4>Instant Listings</h4><p>List your harvest in seconds. Seasonal feeds match buyers to your fresh produce automatically.</p></div>
+            </div>
+        </div>
+        <div class="panel-stats">
+            <div><div class="pstat-num">12.4<em>K+</em></div><div class="pstat-lbl">Active Farmers</div></div>
+            <div><div class="pstat-num">48</div><div class="pstat-lbl">Countries</div></div>
+            <div><div class="pstat-num">98<em>%</em></div><div class="pstat-lbl">Satisfaction</div></div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="panel-right">
+        <div class="auth-card">
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <button class="tab active" data-tab="login" onclick="switchTab('login')">Sign In</button>
+                <button class="tab" data-tab="signup" onclick="switchTab('signup')">Create Account</button>
+            </div>
+
+            <!-- LOGIN -->
+            <div class="form-view active" id="loginView">
+                <div class="auth-title">Welcome back</div>
+                <div class="auth-sub">Sign in to access your marketplace, trades, and listings.</div>
+                <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                    <div class="fg">
+                        <label>Email Address</label>
+                        <input type="email" class="fi" id="l_email" placeholder="you@example.com" autocomplete="email">
+                        <i class="fas fa-envelope fg-icon"></i>
+                        <div class="err-msg" id="l_email_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="fg">
+                        <label>Password</label>
+                        <input type="password" class="fi pw-field" id="l_pass" placeholder="Enter your password" autocomplete="current-password">
+                        <i class="fas fa-lock fg-icon"></i>
+                        <i class="fas fa-eye fg-icon pw-toggle" onclick="togglePw('l_pass',this)"></i>
+                        <div class="err-msg" id="l_pass_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="check-row">
+                        <label class="check-label"><input type="checkbox" checked> Remember me</label>
+                        <a class="forgot" onclick="toast('Password reset link sent to your email')">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn-auth" id="loginBtn">
+                        <span class="btn-text">Sign In</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+                <div class="divider"><span>or continue with</span></div>
+                <div class="social-row">
+                    <button class="btn-social" onclick="socialLogin('Google')"><i class="fab fa-google"></i> Google</button>
+                    <button class="btn-social" onclick="socialLogin('Apple')"><i class="fab fa-apple"></i> Apple</button>
+                </div>
+            </div>
+
+            <!-- SIGNUP -->
+            <div class="form-view" id="signupView">
+                <div class="auth-title">Join yieldX</div>
+                <div class="auth-sub">Create your farmer profile and start trading globally.</div>
+                <form id="signupForm" onsubmit="handleSignup(event)" novalidate>
+                    <div style="display:flex;gap:10px;">
+                        <div class="fg" style="flex:1;">
+                            <label>First Name</label>
+                            <input type="text" class="fi" id="s_fname" placeholder="Rashid" autocomplete="given-name">
+                            <i class="fas fa-user fg-icon"></i>
+                            <div class="err-msg" id="s_fname_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                        </div>
+                        <div class="fg" style="flex:1;">
+                            <label>Last Name</label>
+                            <input type="text" class="fi" id="s_lname" placeholder="Al-Ketbi" autocomplete="family-name">
+                            <i class="fas fa-user fg-icon"></i>
+                            <div class="err-msg" id="s_lname_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                        </div>
+                    </div>
+                    <div class="fg">
+                        <label>Email Address</label>
+                        <input type="email" class="fi" id="s_email" placeholder="you@example.com" autocomplete="email">
+                        <i class="fas fa-envelope fg-icon"></i>
+                        <div class="err-msg" id="s_email_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="fg">
+                        <label>Country</label>
+                        <select class="fi fi-select" id="s_country">
+                            <option value="">Select your country</option>
+                            <option>UAE</option><option>India</option><option>Japan</option>
+                            <option>Brazil</option><option>China</option><option>Ghana</option>
+                            <option>Italy</option><option>USA</option><option>Iran</option>
+                            <option>Morocco</option><option>Mexico</option><option>Pakistan</option>
+                            <option>Kenya</option><option>Colombia</option><option>Other</option>
+                        </select>
+                        <i class="fas fa-globe fg-icon"></i>
+                        <div class="err-msg" id="s_country_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="fg">
+                        <label>Role</label>
+                        <select class="fi fi-select" id="s_role">
+                            <option value="">Select your role</option>
+                            <option>Farmer</option><option>Buyer</option><option>Trader</option><option>Agri Business</option>
+                        </select>
+                        <i class="fas fa-briefcase fg-icon"></i>
+                        <div class="err-msg" id="s_role_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="fg">
+                        <label>Password</label>
+                        <input type="password" class="fi pw-field" id="s_pass" placeholder="Min. 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
+                        <i class="fas fa-lock fg-icon"></i>
+                        <i class="fas fa-eye fg-icon pw-toggle" onclick="togglePw('s_pass',this)"></i>
+                        <div class="pw-strength" id="pwStrength">
+                            <div class="pw-bar" id="bar1"></div><div class="pw-bar" id="bar2"></div>
+                            <div class="pw-bar" id="bar3"></div><div class="pw-bar" id="bar4"></div>
+                        </div>
+                        <div class="pw-label" id="pwLabel"></div>
+                        <div class="err-msg" id="s_pass_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="fg">
+                        <label>Confirm Password</label>
+                        <input type="password" class="fi pw-field" id="s_pass2" placeholder="Repeat your password" autocomplete="new-password">
+                        <i class="fas fa-lock fg-icon"></i>
+                        <i class="fas fa-eye fg-icon pw-toggle" onclick="togglePw('s_pass2',this)"></i>
+                        <div class="err-msg" id="s_pass2_err"><i class="fas fa-circle-exclamation"></i><span></span></div>
+                    </div>
+                    <div class="terms">
+                        <label class="check-label"><input type="checkbox" id="s_terms"> I agree to the <a onclick="toast('Terms of Service page would open here')">Terms of Service</a> and <a onclick="toast('Privacy Policy page would open here')">Privacy Policy</a></label>
+                    </div>
+                    <button type="submit" class="btn-auth" id="signupBtn">
+                        <span class="btn-text">Create Account</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+                <div class="divider"><span>or sign up with</span></div>
+                <div class="social-row">
+                    <button class="btn-social" onclick="socialLogin('Google')"><i class="fab fa-google"></i> Google</button>
+                    <button class="btn-social" onclick="socialLogin('Apple')"><i class="fab fa-apple"></i> Apple</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastTxt"></span></div>
+
+<script>
+/* ===== TAB SWITCHING ===== */
+function switchTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+    document.getElementById('loginView').classList.toggle('active',tab==='login');
+    document.getElementById('signupView').classList.toggle('active',tab==='signup');
+    clearAllErrors();
+}
+
+/* ===== PASSWORD VISIBILITY ===== */
+function togglePw(id,icon){
+    const f=document.getElementById(id);
+    if(f.type==='password'){f.type='text';icon.classList.replace('fa-eye','fa-eye-slash');}
+    else{f.type='password';icon.classList.replace('fa-eye-slash','fa-eye');}
+}
+
+/* ===== PASSWORD STRENGTH ===== */
+function checkStrength(val){
+    const bars=[document.getElementById('bar1'),document.getElementById('bar2'),document.getElementById('bar3'),document.getElementById('bar4')];
+    const label=document.getElementById('pwLabel');
+    bars.forEach(b=>b.className='pw-bar');
+    label.className='pw-label';label.textContent='';
+    if(!val) return;
+    let score=0;
+    if(val.length>=8) score++;
+    if(/[A-Z]/.test(val)) score++;
+    if(/[0-9]/.test(val)) score++;
+    if(/[^A-Za-z0-9]/.test(val)) score++;
+    const levels=['','weak','weak','medium','strong'];
+    const labels=['','Weak — add uppercase, numbers, symbols','Weak — keep going','Good — almost there','Strong password'];
+    for(let i=0;i<score;i++) bars[i].classList.add(levels[score]);
+    label.classList.add(levels[score]);
+    label.textContent=labels[score];
+}
+
+/* ===== ERROR HELPERS ===== */
+function showErr(id,msg){
+    const el=document.getElementById(id);
+    const inp=el.previousElementSibling?.previousElementSibling;
+    if(inp&&inp.classList.contains('fi')) inp.classList.add('err');
+    el.querySelector('span').textContent=msg;
+    el.classList.add('show');
+}
+function clearErr(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    const inp=el.previousElementSibling?.previousElementSibling;
+    if(inp&&inp.classList.contains('fi')) inp.classList.remove('err');
+    el.classList.remove('show');
+}
+function clearAllErrors(){
+    document.querySelectorAll('.err-msg').forEach(e=>e.classList.remove('show'));
+    document.querySelectorAll('.fi.err').forEach(e=>e.classList.remove('err'));
+}
+
+/* Live clear errors on input */
+document.querySelectorAll('.fi').forEach(inp=>{
+    inp.addEventListener('input',function(){
+        this.classList.remove('err');
+        const errEl=this.parentElement.querySelector('.err-msg');
+        if(errEl) errEl.classList.remove('show');
+    });
+});
+
+/* ===== LOGIN ===== */
+function handleLogin(e){
+    e.preventDefault();clearAllErrors();
+    let ok=true;
+    const email=document.getElementById('l_email').value.trim();
+    const pass=document.getElementById('l_pass').value;
+
+    if(!email){showErr('l_email_err','Email is required');ok=false;}
+    else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('l_email_err','Enter a valid email address');ok=false;}
+
+    if(!pass){showErr('l_pass_err','Password is required');ok=false;}
+    else if(pass.length<6){showErr('l_pass_err','Password must be at least 6 characters');ok=false;}
+
+    if(!ok) return;
+
+    const btn=document.getElementById('loginBtn');
+    btn.classList.add('loading');
+    setTimeout(()=>{
+        btn.classList.remove('loading');
+        toast('Welcome back! Redirecting to marketplace...');
+        /* Simulate redirect */
+        setTimeout(()=>{ window.location.href='#'; },1500);
+    },1600);
+}
+
+/* ===== SIGNUP ===== */
+function handleSignup(e){
+    e.preventDefault();clearAllErrors();
+    let ok=true;
+    const fname=document.getElementById('s_fname').value.trim();
+    const lname=document.getElementById('s_lname').value.trim();
+    const email=document.getElementById('s_email').value.trim();
+    const country=document.getElementById('s_country').value;
+    const role=document.getElementById('s_role').value;
+    const pass=document.getElementById('s_pass').value;
+    const pass2=document.getElementById('s_pass2').value;
+    const terms=document.getElementById('s_terms').checked;
+
+    if(!fname){showErr('s_fname_err','First name is required');ok=false;}
+    if(!lname){showErr('s_lname_err','Last name is required');ok=false;}
+    if(!email){showErr('s_email_err','Email is required');ok=false;}
+    else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr('s_email_err','Enter a valid email address');ok=false;}
+    if(!country){showErr('s_country_err','Please select your country');ok=false;}
+    if(!role){showErr('s_role_err','Please select your role');ok=false;}
+    if(!pass){showErr('s_pass_err','Password is required');ok=false;}
+    else if(pass.length<8){showErr('s_pass_err','Minimum 8 characters required');ok=false;}
+    if(!pass2){showErr('s_pass2_err','Please confirm your password');ok=false;}
+    else if(pass!==pass2){showErr('s_pass2_err','Passwords do not match');ok=false;}
+    if(!terms){toast('Please accept the Terms of Service');ok=false;}
+
+    if(!ok) return;
+
+    const btn=document.getElementById('signupBtn');
+    btn.classList.add('loading');
+    setTimeout(()=>{
+        btn.classList.remove('loading');
+        toast('Account created! Welcome to yieldX, '+fname+'.');
+        setTimeout(()=>{ window.location.href='#'; },1800);
+    },1800);
+}
+
+/* ===== SOCIAL LOGIN ===== */
+function socialLogin(provider){
+    toast('Connecting with '+provider+'...');
+}
+
+/* ===== TOAST ===== */
+let toastTimer;
+function toast(msg){
+    clearTimeout(toastTimer);
+    const t=document.getElementById('toast');
+    document.getElementById('toastTxt').textContent=msg;
+    t.classList.add('show');
+    toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+/* ===== FLOATING LEAVES ===== */
+function spawnLeaves(){
+    const icons=['fa-leaf','fa-seedling','fa-wheat-awn'];
+    for(let i=0;i<12;i++){
+        const el=document.createElement('i');
+        el.className='fas '+icons[i%icons.length]+' leaf';
+        el.style.left=Math.random()*100+'vw';
+        el.style.animationDuration=(12+Math.random()*18)+'s';
+        el.style.animationDelay=(Math.random()*15)+'s';
+        el.style.fontSize=(10+Math.random()*10)+'px';
+        document.body.appendChild(el);
+    }
+}
+
+/* ===== INIT ===== */
+document.addEventListener('DOMContentLoaded',spawnLeaves);
+</script>
+</body>
+</html>

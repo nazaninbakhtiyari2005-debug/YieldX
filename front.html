@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YieldX Lab — Smart Agriculture Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+    [data-theme="dark"]{
+        --bg:#030B06;--bg-2:rgba(5,18,10,0.9);--surface:rgba(10,38,23,0.4);
+        --surface-2:rgba(14,52,32,0.5);--border:rgba(34,197,94,0.09);
+        --border-h:rgba(34,197,94,0.28);--green:#22C55E;--green-l:#4ADE80;
+        --green-d:#15803D;--green-deep:#064E3B;--amber:#F59E0B;
+        --rust:#EF4444;--rust-bg:rgba(239,68,68,0.1);--rust-border:rgba(239,68,68,0.3);
+        --text:#ECFDF5;--text-s:#86EFAC;--text-m:rgba(134,231,172,0.45);
+        --overlay:rgba(0,0,0,0.5);--shadow:rgba(0,0,0,0.3);
+        --select-bg:#0A2618;--scrollbar:#064E3B;--orb-op:0.1;
+        --input-bg:rgba(10,38,23,0.5);--card-bg:rgba(10,38,23,0.4);
+        --card-hover:rgba(14,52,32,0.55);--result-bg:linear-gradient(160deg,rgba(14,52,32,0.5),rgba(5,18,10,0.9));
+        --conf-track:rgba(10,38,23,0.6);
+    }
+    [data-theme="light"]{
+        --bg:#F0F7EC;--bg-2:rgba(228,243,222,0.95);--surface:rgba(255,255,255,0.7);
+        --surface-2:rgba(235,250,238,0.85);--border:rgba(22,163,74,0.1);
+        --border-h:rgba(22,163,74,0.28);--green:#16A34A;--green-l:#22C55E;
+        --green-d:#15803D;--green-deep:#166534;--amber:#D97706;
+        --rust:#DC2626;--rust-bg:rgba(220,38,38,0.06);--rust-border:rgba(220,38,38,0.2);
+        --text:#14332A;--text-s:#3D7A52;--text-m:rgba(61,122,82,0.55);
+        --overlay:rgba(0,0,0,0.25);--shadow:rgba(22,163,74,0.08);
+        --select-bg:#FFFFFF;--scrollbar:#C6E6CD;--orb-op:0.06;
+        --input-bg:rgba(255,255,255,0.8);--card-bg:rgba(255,255,255,0.7);
+        --card-hover:rgba(235,250,238,0.9);--result-bg:linear-gradient(160deg,rgba(235,250,238,0.85),rgba(228,243,222,0.95));
+        --conf-track:rgba(22,163,74,0.1);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+        font-family:'DM Sans',sans-serif;
+        background:var(--bg);color:var(--text);
+        min-height:100vh;overflow-x:hidden;
+        transition:background .4s,color .4s;
+    }
+    h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;}
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:3px;}
+
+    /* ===== orbs ===== */
+    .orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:var(--orb-op);pointer-events:none;z-index:0;transition:opacity .5s;}
+    .orb-1{width:min(550px,85vw);height:min(550px,85vw);background:var(--green);top:-200px;left:-150px;animation:orbM 25s infinite ease-in-out;}
+    .orb-2{width:min(450px,75vw);height:min(450px,75vw);background:#0D9488;bottom:-100px;right:-100px;animation:orbM 30s infinite ease-in-out reverse;}
+    .orb-3{width:min(300px,55vw);height:min(300px,55vw);background:var(--amber);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbM 20s infinite ease-in-out 5s;opacity:calc(var(--orb-op)*0.35);}
+    @keyframes orbM{0%,100%{transform:translate(0,0);}25%{transform:translate(35px,-25px);}50%{transform:translate(-18px,40px);}75%{transform:translate(25px,18px);}}
+
+    .wrap{max-width:920px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+
+    /* ===== header ===== */
+    header{
+        display:flex;align-items:center;gap:14px;
+        padding-bottom:22px;margin-bottom:22px;
+        border-bottom:1px solid var(--border);
+        transition:border-color .4s;flex-wrap:wrap;
+    }
+    .mark{
+        width:46px;height:46px;flex-shrink:0;
+        border-radius:12px;
+        background:linear-gradient(135deg,var(--green),var(--green-l));
+        display:flex;align-items:center;justify-content:center;
+        font-size:20px;color:#fff;
+        box-shadow:0 0 18px rgba(34,197,94,0.25);
+        transition:box-shadow .4s;
+    }
+    header h1{font-size:22px;font-weight:700;letter-spacing:-.5px;transition:color .4s;}
+    header h1 span{color:var(--green);}
+    header p{color:var(--text-m);font-size:13px;margin-top:2px;transition:color .4s;}
+    .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
+    .status-pill{
+        font-size:11px;color:var(--amber);
+        border:1px solid rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);
+        padding:4px 12px;border-radius:20px;white-space:nowrap;
+        display:flex;align-items:center;gap:5px;
+        transition:all .4s;
+    }
+    .status-pill i{font-size:8px;}
+
+    .theme-btn{
+        width:36px;height:36px;border-radius:9px;
+        border:1px solid var(--border);background:transparent;
+        color:var(--text-s);cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        font-size:15px;transition:all .25s;flex-shrink:0;
+    }
+    .theme-btn:hover{border-color:var(--border-h);color:var(--text);background:rgba(34,197,94,0.06);}
+    .theme-btn .fa-sun{display:none;}
+    [data-theme="light"] .theme-btn .fa-moon{display:none;}
+    [data-theme="light"] .theme-btn .fa-sun{display:inline;}
+
+    /* ===== nav tabs ===== */
+    nav{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;}
+    nav button{
+        font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;
+        background:var(--card-bg);color:var(--text-s);
+        border:1px solid var(--border);border-radius:10px;
+        padding:10px 16px;cursor:pointer;transition:all .2s;
+        backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        display:flex;align-items:center;gap:7px;
+    }
+    nav button:hover{color:var(--text);border-color:var(--border-h);background:var(--card-hover);}
+    nav button.active{
+        background:var(--green);color:#fff;border-color:var(--green);
+        box-shadow:0 0 14px rgba(34,197,94,0.2);
+    }
+    nav button i{font-size:13px;}
+
+    /* ===== panels ===== */
+    .panel{
+        background:var(--card-bg);
+        border:1px solid var(--border);border-radius:16px;
+        padding:24px;display:none;
+        backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+        animation:fade .3s ease;
+        transition:background .4s,border-color .4s;
+    }
+    .panel.active{display:block;}
+    @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+    .panel h2{font-size:18px;font-weight:600;margin-bottom:4px;transition:color .4s;}
+    .panel .sub{color:var(--text-m);font-size:13px;margin-bottom:20px;transition:color .4s;}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .grid .full{grid-column:1/-1;}
+
+    label{display:block;font-size:12px;color:var(--text-m);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;transition:color .4s;}
+    input[type=number],select{
+        width:100%;background:var(--input-bg);color:var(--text);
+        border:1px solid var(--border);border-radius:9px;
+        padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;
+        outline:none;transition:all .2s;
+        backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    }
+    input[type=number]:focus,select:focus{border-color:var(--border-h);box-shadow:0 0 0 3px rgba(34,197,94,0.08);}
+    input[type=number]::placeholder{color:var(--text-m);}
+    select{cursor:pointer;appearance:none;-webkit-appearance:none;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2322C55E' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;background-position:right 12px center;
+        padding-right:32px;
+    }
+    select option{background:var(--select-bg);color:var(--text);}
+    .field{margin-bottom:14px;}
+
+    /* ===== file drop ===== */
+    .file-drop{
+        border:1.5px dashed var(--border-h);border-radius:14px;
+        padding:28px 20px;text-align:center;cursor:pointer;
+        background:var(--input-bg);transition:all .2s;margin-bottom:12px;
+        backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    }
+    .file-drop:hover{border-color:var(--green);background:var(--card-hover);}
+    .file-drop.has-file{border-style:solid;border-color:var(--green);}
+    .file-drop img{max-height:160px;border-radius:10px;margin-top:12px;box-shadow:var(--shadow);}
+    .file-drop input{display:none;}
+    .file-drop-icon{font-size:28px;color:var(--green);margin-bottom:8px;transition:color .4s;}
+    .file-drop-text{color:var(--text-s);font-size:13.5px;transition:color .4s;}
+    .file-drop-name{color:var(--green);font-size:12.5px;font-weight:600;margin-top:4px;}
+    .file-hint{color:var(--text-m);font-size:12px;margin-bottom:4px;transition:color .4s;}
+    .file-hint span{color:var(--text-s);font-weight:500;}
+
+    /* ===== actions ===== */
+    .actions{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;}
+    .run-btn{
+        background:var(--green);color:#fff;border:none;border-radius:10px;
+        font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;
+        padding:12px 22px;cursor:pointer;transition:all .25s;
+        box-shadow:0 0 16px rgba(34,197,94,0.2);
+        display:flex;align-items:center;gap:8px;
+    }
+    .run-btn:hover{background:var(--green-l);transform:translateY(-1px);box-shadow:0 4px 20px rgba(34,197,94,0.3);}
+    .run-btn:active{transform:translateY(0);}
+    .run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+    .run-btn i{font-size:13px;}
+    .hint{font-size:12px;color:var(--text-m);transition:color .4s;}
+
+    /* ===== result ===== */
+    .result{
+        margin-top:22px;padding:20px;border-radius:14px;
+        background:var(--result-bg);
+        border:1px solid var(--border);
+        display:none;transition:background .4s,border-color .4s;
+    }
+    .result.show{display:flex;gap:16px;align-items:center;animation:fade .35s ease;}
+    .result .r-icon{
+        width:56px;height:56px;flex-shrink:0;border-radius:14px;
+        background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);
+        display:flex;align-items:center;justify-content:center;font-size:26px;
+        transition:all .4s;
+    }
+    .result.is-warning .r-icon{background:var(--rust-bg);border-color:var(--rust-border);}
+    .result .r-body{flex:1;min-width:0;}
+    .result .label{font-size:11px;color:var(--text-m);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600;transition:color .4s;}
+    .result .value{font-size:22px;font-weight:700;color:var(--amber);transition:color .4s;}
+    .result .value.disease{color:var(--rust);}
+    .result .desc{margin-top:4px;font-size:13px;color:var(--text-s);line-height:1.5;transition:color .4s;}
+    .conf-row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+    .conf-bar{flex:1;height:6px;border-radius:6px;background:var(--conf-track);overflow:hidden;transition:background .4s;}
+    .conf-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green-d),var(--green));transition:width .6s ease;}
+    .result.is-warning .conf-fill{background:linear-gradient(90deg,#8a4620,var(--rust));}
+    .conf-label{font-size:12px;color:var(--text-m);white-space:nowrap;font-weight:500;transition:color .4s;}
+
+    /* ===== toast ===== */
+    .toast{
+        position:fixed;bottom:28px;left:50%;
+        transform:translateX(-50%) translateY(14px);
+        background:var(--green-deep);color:var(--text);
+        padding:10px 20px;border-radius:10px;font-size:13px;
+        font-family:'DM Sans',sans-serif;opacity:0;
+        transition:all .3s;z-index:1000;pointer-events:none;
+        display:flex;align-items:center;gap:7px;
+        box-shadow:0 6px 24px var(--shadow);
+        border:1px solid var(--border-h);
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .toast i{color:var(--green-l);flex-shrink:0;}
+
+    /* ===== responsive ===== */
+    @media(max-width:768px){
+        .wrap{padding:20px 14px 48px;}
+        header{gap:10px;padding-bottom:18px;margin-bottom:18px;}
+        .mark{width:40px;height:40px;font-size:18px;border-radius:10px;}
+        header h1{font-size:19px;}
+        header p{font-size:12px;}
+        .status-pill{font-size:10px;padding:3px 10px;}
+        nav button{padding:9px 13px;font-size:12.5px;}
+        .panel{padding:18px 16px;border-radius:14px;}
+        .panel h2{font-size:16px;}
+        .grid{gap:10px;}
+        .result.show{flex-direction:column;text-align:center;}
+        .result .r-icon{margin:0 auto;}
+        .actions{flex-direction:column;align-items:stretch;}
+        .run-btn{justify-content:center;}
+        .hint{text-align:center;}
+    }
+    @media(max-width:480px){
+        .grid{grid-template-columns:1fr;}
+        nav{gap:5px;}
+        nav button{padding:8px 11px;font-size:12px;flex:1;justify-content:center;}
+        .file-drop{padding:20px 14px;}
+    }
+
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="wrap">
+  <header>
+    <div class="mark"><i class="fas fa-seedling"></i></div>
+    <div>
+      <h1>Yield<span>X</span> Lab</h1>
+      <p>Smart agriculture toolkit — crop, fertilizer & disease analysis</p>
+    </div>
+    <div class="hdr-right">
+      <div class="status-pill"><i class="fas fa-circle"></i> Demo Mode</div>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+      </button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="crop"><i class="fas fa-wheat-awn"></i> Crop Suggest</button>
+    <button data-tab="fert"><i class="fas fa-flask"></i> Fertilizer</button>
+    <button data-tab="disease"><i class="fas fa-leaf"></i> Disease Detect</button>
+  </nav>
+
+  <!-- CROP RECOMMENDATION -->
+  <section class="panel active" id="panel-crop">
+    <h2>Crop Recommendation</h2>
+    <p class="sub">Enter soil nutrients and climate data to get the best crop suggestion for your field.</p>
+    <div class="grid">
+      <div class="field"><label>Nitrogen (N)</label><input type="number" id="c-n" value="90" step="1"></div>
+      <div class="field"><label>Phosphorous (P)</label><input type="number" id="c-p" value="42" step="1"></div>
+      <div class="field"><label>Potassium (K)</label><input type="number" id="c-k" value="43" step="1"></div>
+      <div class="field"><label>Temperature (°C)</label><input type="number" id="c-temp" value="20.8" step="0.1"></div>
+      <div class="field"><label>Humidity (%)</label><input type="number" id="c-hum" value="82" step="0.1"></div>
+      <div class="field"><label>Soil pH</label><input type="number" id="c-ph" value="6.5" step="0.1"></div>
+      <div class="field full"><label>Rainfall (mm)</label><input type="number" id="c-rain" value="202" step="0.1"></div>
+    </div>
+    <div class="actions">
+      <button class="run-btn" onclick="runCrop()"><i class="fas fa-play"></i> Analyze Soil</button>
+      <span class="hint">All 7 parameters are evaluated together for the best match.</span>
+    </div>
+    <div class="result" id="crop-result">
+      <div class="r-icon" id="crop-icon"><i class="fas fa-wheat-awn"></i></div>
+      <div class="r-body">
+        <div class="label">Recommended Crop</div>
+        <div class="value" id="crop-value">—</div>
+        <div class="desc" id="crop-desc">Based on your soil and climate data, this crop shows the highest compatibility.</div>
+        <div class="conf-row">
+          <div class="conf-bar"><div class="conf-fill" id="crop-conf-fill" style="width:0%"></div></div>
+          <span class="conf-label" id="crop-conf-label"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FERTILIZER RECOMMENDATION -->
+  <section class="panel" id="panel-fert">
+    <h2>Fertilizer Recommendation</h2>
+    <p class="sub">Provide soil conditions and crop type to find the ideal fertilizer blend.</p>
+    <div class="grid">
+      <div class="field"><label>Temperature (°C)</label><input type="number" id="f-temp" value="26" step="0.1"></div>
+      <div class="field"><label>Humidity (%)</label><input type="number" id="f-hum" value="52" step="0.1"></div>
+      <div class="field"><label>Soil Moisture</label><input type="number" id="f-moist" value="38" step="0.1"></div>
+      <div class="field"><label>Nitrogen</label><input type="number" id="f-n" value="37" step="1"></div>
+      <div class="field"><label>Potassium</label><input type="number" id="f-k" value="0" step="1"></div>
+      <div class="field"><label>Phosphorous</label><input type="number" id="f-p" value="0" step="1"></div>
+      <div class="field"><label>Soil Type</label>
+        <select id="f-soil"></select>
+      </div>
+      <div class="field"><label>Crop Type</label>
+        <select id="f-crop"></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="run-btn" onclick="runFert()"><i class="fas fa-play"></i> Find Fertilizer</button>
+      <span class="hint">Soil type and crop category are matched for optimal results.</span>
+    </div>
+    <div class="result" id="fert-result">
+      <div class="r-icon"><i class="fas fa-flask"></i></div>
+      <div class="r-body">
+        <div class="label">Recommended Fertilizer</div>
+        <div class="value" id="fert-value">—</div>
+        <div class="desc" id="fert-desc"></div>
+        <div class="conf-row">
+          <div class="conf-bar"><div class="conf-fill" id="fert-conf-fill" style="width:0%"></div></div>
+          <span class="conf-label" id="fert-conf-label"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISEASE DETECTION -->
+  <section class="panel" id="panel-disease">
+    <h2>Plant Disease Detection</h2>
+    <p class="sub">Upload a leaf photo and select the plant type to identify potential diseases.</p>
+    <div class="field">
+      <label>Plant Type</label>
+      <select id="d-crop" onchange="renderDiseaseMeta()"></select>
+    </div>
+    <div class="file-drop" id="fileDrop" onclick="document.getElementById('d-file').click()">
+      <div class="file-drop-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+      <div class="file-drop-text" id="d-drop-text">Click to select a leaf photo</div>
+      <div class="file-drop-name" id="d-drop-name" style="display:none"></div>
+      <img id="d-preview" style="display:none" alt="Leaf preview">
+      <input type="file" id="d-file" accept="image/*" onchange="handleFile(event)">
+    </div>
+    <div class="file-hint" id="d-classes-hint"></div>
+    <div class="actions">
+      <button class="run-btn" onclick="runDisease()"><i class="fas fa-play"></i> Detect Disease</button>
+      <span class="hint">Images are processed locally — nothing is uploaded.</span>
+    </div>
+    <div class="result" id="disease-result">
+      <div class="r-icon" id="disease-icon"><i class="fas fa-leaf"></i></div>
+      <div class="r-body">
+        <div class="label">Detection Result</div>
+        <div class="value disease" id="disease-value">—</div>
+        <div class="desc" id="disease-desc"></div>
+        <div class="conf-row">
+          <div class="conf-bar"><div class="conf-fill" id="disease-conf-fill" style="width:0%"></div></div>
+          <span class="conf-label" id="disease-conf-label"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check"></i><span id="toastTxt"></span></div>
+
+<script>
+/* ===== reference data ===== */
+const crops = ['apple','banana','blackgram','chickpea','coconut','coffee','cotton','grapes','jute','kidneybeans','lentil','maize','mango','mothbeans','mungbean','muskmelon','orange','papaya','pigeonpeas','pomegranate','rice','watermelon'];
+const soilTypes = ['Black','Clayey','Loamy','Red','Sandy'];
+const cropTypes = ['Barley','Cotton','Ground Nuts','Maize','Millets','Oil seeds','Paddy','Pulses','Sugarcane','Tobacco','Wheat'];
+const fertilizerClasses = ['10-26-26','14-35-14','17-17-17','20-20','28-28','DAP','Urea'];
+const cropDiseaseClasses = {
+  strawberry:['Leaf_scorch','healthy'],
+  potato:['Early_blight','Late_blight','healthy'],
+  corn:['Cercospora_leaf_spot Gray_leaf_spot','Common_rust_','Northern_Leaf_Blight','healthy'],
+  apple:['Apple_scab','Black_rot','Cedar_apple_rust','healthy'],
+  cherry:['Powdery_mildew','healthy'],
+  grape:['Black_rot','Esca_(Black_Measles)','Leaf_blight_(Isariopsis_Leaf_Spot)','healthy'],
+  peach:['Bacterial_spot','healthy'],
+  pepper:['Bacterial_spot','healthy'],
+  tomato:['Bacterial_spot','Early_blight','Late_blight','Leaf_Mold','Septoria_leaf_spot','Spider_mites Two-spotted_spider_mite','Target_Spot','Tomato_Yellow_Leaf_Curl_Virus','Tomato_mosaic_virus','healthy']
+};
+
+const cropDescriptions = {
+  rice:'Rice thrives in warm, humid conditions with high rainfall and waterlogged soil.',
+  maize:'Maize performs well in moderate temperatures with good nitrogen availability.',
+  chickpea:'Chickpeas prefer cooler, dry conditions with well-drained soil.',
+  kidneybeans:'Kidney beans need warm temperatures and moderate moisture levels.',
+  pigeonpeas:'Pigeon peas are drought-tolerant and adapt well to various soil types.',
+  mothbeans:'Moth beans are extremely drought-hardy and suited for arid regions.',
+  mungbean:'Mung beans grow well in warm climates with moderate rainfall.',
+  blackgram:'Black gram prefers tropical conditions with good soil moisture.',
+  lentil:'Lentils thrive in cool, dry climates with well-drained loamy soil.',
+  pomegranate:'Pomegranate adapts to semi-arid conditions and various soil types.',
+  banana:'Bananas require warm, humid tropical conditions with rich soil.',
+  mango:'Mangoes need a distinct dry season and well-drained soil to fruit well.',
+  grapes:'Grapes prefer Mediterranean climates with warm, dry summers.',
+  watermelon:'Watermelon thrives in hot conditions with sandy, well-drained soil.',
+  muskmelon:'Muskmelon grows best in warm, sunny conditions with moderate water.',
+  apple:'Apples need cold winters and moderate summers for optimal production.',
+  orange:'Oranges prefer subtropical climates with well-drained soil.',
+  papaya:'Papaya grows rapidly in warm, frost-free tropical environments.',
+  coconut:'Coconut palms thrive in coastal tropical areas with high humidity.',
+  cotton:'Cotton needs warm temperatures and a long frost-free growing season.',
+  jute:'Jute grows well in warm, humid conditions with plenty of rainfall.',
+  coffee:'Coffee requires high altitude, moderate temperatures, and consistent rainfall.'
+};
+
+let currentFileName = null;
+
+/* ===== theme ===== */
+let dark = true;
+function toggleTheme(){
+    dark = !dark;
+    document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    showToast(dark ? 'Dark mode enabled' : 'Light mode enabled');
+}
+
+/* ===== toast ===== */
+function showToast(t){
+    const el = document.getElementById('toast');
+    document.getElementById('toastTxt').textContent = t;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ===== tabs ===== */
+document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+/* ===== populate selects ===== */
+function fillSelect(id, arr){
+    const sel = document.getElementById(id);
+    sel.innerHTML = arr.map((v,i) => `<option value="${i}">${v}</option>`).join('');
+}
+function fillSelectByName(id, arr){
+    const sel = document.getElementById(id);
+    sel.innerHTML = arr.map(v => `<option value="${v}">${v.charAt(0).toUpperCase() + v.slice(1)}</option>`).join('');
+}
+fillSelect('f-soil', soilTypes);
+fillSelect('f-crop', cropTypes);
+fillSelectByName('d-crop', Object.keys(cropDiseaseClasses));
+renderDiseaseMeta();
+
+function renderDiseaseMeta(){
+    const crop = document.getElementById('d-crop').value;
+    const classes = cropDiseaseClasses[crop] || [];
+    document.getElementById('d-classes-hint').innerHTML =
+        'Detectable conditions for <span>' + crop + '</span>: ' + classes.map(c => c.replace(/_/g,' ')).join(', ');
+}
+
+/* ===== deterministic hash ===== */
+function hashToIndex(values, mod){
+    let h = 0;
+    values.forEach((v,i) => { h += Math.abs(v) * (i + 3.7); });
+    h = Math.floor((Math.sin(h) * 10000) % mod);
+    return ((h % mod) + mod) % mod;
+}
+
+/* ===== crop recommendation ===== */
+function runCrop(){
+    const ids = ['c-n','c-p','c-k','c-temp','c-hum','c-ph','c-rain'];
+    const values = ids.map(id => parseFloat(document.getElementById(id).value));
+    const idx = hashToIndex(values, crops.length);
+    const crop = crops[idx];
+    const conf = 72 + (idx % 24);
+
+    document.getElementById('crop-icon').innerHTML = '<i class="fas fa-wheat-awn"></i>';
+    document.getElementById('crop-value').textContent = crop.charAt(0).toUpperCase() + crop.slice(1);
+    document.getElementById('crop-desc').textContent = cropDescriptions[crop] || 'This crop shows the highest compatibility with your soil and climate conditions.';
+
+    /* animate confidence bar */
+    const fill = document.getElementById('crop-conf-fill');
+    fill.style.width = '0%';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => { fill.style.width = conf + '%'; });
+    });
+    document.getElementById('crop-conf-label').textContent = conf + '% confidence';
+
+    const result = document.getElementById('crop-result');
+    result.classList.remove('is-warning');
+    result.classList.add('show');
+    showToast('Crop analysis complete');
+}
+
+/* ===== fertilizer recommendation ===== */
+function runFert(){
+    const numIds = ['f-temp','f-hum','f-moist','f-n','f-k','f-p'];
+    const numVals = numIds.map(id => parseFloat(document.getElementById(id).value));
+    const soilIdx = parseInt(document.getElementById('f-soil').value);
+    const cropIdx = parseInt(document.getElementById('f-crop').value);
+    const idx = hashToIndex([...numVals, soilIdx * 5, cropIdx * 3], fertilizerClasses.length);
+    const fert = fertilizerClasses[idx];
+    const conf = 68 + (idx % 28);
+
+    document.getElementById('fert-value').textContent = fert;
+    document.getElementById('fert-desc').textContent =
+        'Based on ' + soilTypes[soilIdx].toLowerCase() + ' soil and ' + cropTypes[cropIdx] + ', this fertilizer blend delivers the highest yield potential.';
+
+    const fill = document.getElementById('fert-conf-fill');
+    fill.style.width = '0%';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => { fill.style.width = conf + '%'; });
+    });
+    document.getElementById('fert-conf-label').textContent = conf + '% confidence';
+    document.getElementById('fert-result').classList.add('show');
+    showToast('Fertilizer recommendation ready');
+}
+
+/* ===== file handling ===== */
+function handleFile(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    currentFileName = file.name;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const img = document.getElementById('d-preview');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+        document.getElementById('d-drop-text').textContent = 'Click to change photo';
+        const nameEl = document.getElementById('d-drop-name');
+        nameEl.textContent = file.name;
+        nameEl.style.display = 'block';
+        document.getElementById('fileDrop').classList.add('has-file');
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ===== disease detection ===== */
+function runDisease(){
+    const crop = document.getElementById('d-crop').value;
+    const classes = cropDiseaseClasses[crop];
+    if(!currentFileName){
+        showToast('Please select a leaf photo first');
+        return;
+    }
+    let h = 0;
+    for(let i = 0; i < currentFileName.length; i++) h += currentFileName.charCodeAt(i) * (i + 2);
+    const idx = h % classes.length;
+    const rawDisease = classes[idx];
+    const disease = rawDisease.replace(/_/g, ' ');
+    const isHealthy = rawDisease.toLowerCase() === 'healthy';
+    const conf = (65 + idx * 7) % 30 + 70;
+
+    document.getElementById('disease-icon').innerHTML = isHealthy
+        ? '<i class="fas fa-circle-check" style="color:var(--green)"></i>'
+        : '<i class="fas fa-triangle-exclamation" style="color:var(--rust)"></i>';
+    document.getElementById('disease-value').textContent = disease;
+    document.getElementById('disease-desc').textContent = isHealthy
+        ? 'The ' + crop + ' leaf appears healthy with no signs of disease detected.'
+        : 'Signs of "' + disease + '" detected on the ' + crop + ' leaf. Consider consulting a plant pathologist for treatment options.';
+
+    const fill = document.getElementById('disease-conf-fill');
+    fill.style.width = '0%';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => { fill.style.width = conf + '%'; });
+    });
+    document.getElementById('disease-conf-label').textContent = conf + '% confidence';
+
+    const result = document.getElementById('disease-result');
+    result.classList.toggle('is-warning', !isHealthy);
+    result.classList.add('show');
+    showToast(isHealthy ? 'Leaf is healthy' : 'Disease detected');
+}
+
+/* ===== drag & drop support ===== */
+const dropZone = document.getElementById('fileDrop');
+['dragenter','dragover'].forEach(evt => {
+    dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('has-file'); });
+});
+['dragleave','drop'].forEach(evt => {
+    dropZone.addEventListener(evt, e => { e.preventDefault(); if(evt !== 'drop') dropZone.classList.remove('has-file'); });
+});
+dropZone.addEventListener('drop', e => {
+    const file = e.dataTransfer.files[0];
+    if(file && file.type.startsWith('image/')){
+        const input = document.getElementById('d-file');
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        handleFile({target: input});
+    }
+});
+</script>
+</body>
+</html>
